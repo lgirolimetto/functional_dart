@@ -2,7 +2,7 @@ name: lg_functional_dart
 description: A minimal functional library written entirely in dart.
 version: 1.1.0
 # homepage: https://www.example.com
-repository: https://https://github.com/lgirolimetto/gl_functional-flutter
+repository: https://github.com/lgirolimetto/gl_functional-flutter
 
 environment:
   sdk: '>=3.1.0 <4.0.0'
