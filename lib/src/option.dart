@@ -1,3 +1,4 @@
+import 'package:lg_functional_dart/lg_functional_dart.dart';
 import 'package:lg_functional_dart/src/iterator_extensions.dart';
 import 'package:lg_functional_dart/src/validation.dart';
 
@@ -25,6 +26,10 @@ class Option<T> {
 
   Option<void> foreach(void Function(T t) f) => map((t) => f(t));
 
+  bool forAll(bool Function(T t) f) => fold(() => true, (some) => f(some));
+  bool exists(bool Function(T t) f) => fold(() => false, (some) => f(some));
+  bool contains(T t) => fold(() => false, (some) => some == t);
+
   Option<R> bind<R>(Option<R> Function(T t) f) =>
       fold(() => Option.none(), (some) => f(some));
 
@@ -41,18 +46,18 @@ class Option<T> {
     return asIterable().bind(f);
   }
 
-  T getOrElse(T defaultVal) => fold(() => defaultVal, (some) => some);
+  T orElse(T defaultVal) => fold(() => defaultVal, (some) => some);
 
-  T getOrElseDo(T Function() fallback) =>
+  T orElseDo(T Function() fallback) =>
       fold(() => fallback(), (some) => some);
 
-  Option<T> getOrElseMap(T Function() f) =>
+  Option<T> orElseMap(T Function() f) =>
       fold(() => Some(f()), (some) => this);
 
-  Option<T> getOrElseBind(Option<T> Function() f) =>
+  Option<T> orElseBind(Option<T> Function() f) =>
       fold(() => f(), (some) => this);
 
-  Validation<Option<T>> toValidation() => Valid(this);
+  Validation<T> toValidation() => isSome ? Valid(_value!) : Invalid<T>(Fail.withError(Error()));
 
   Future<Option<T>> toFutureOrElse(Future<Option<T>> future) =>
       fold(() => future, (some) => toFuture());
@@ -62,34 +67,48 @@ class Option<T> {
   Future<Option<T>> toFuture() => Future(() => (this));
 }
 
-extension FutureOption on Future<Option> {
-  Future<TR> fold<TR, T>(TR Function() noneF, TR Function(T val) someF) {
+extension FutureOption<T> on Future<Option<T>> {
+  Future<TR> fold<TR>(TR Function() noneF, TR Function(T val) someF) {
     return then((value) => value.fold(() => noneF(), (some) => someF(some)));
   }
 
-  Future<T> getOrElse<T>(T defaultVal) =>
-      fold(() => defaultVal, (some) => some! as T);
+  Future<T> orElse(T defaultVal) =>
+      fold(() => defaultVal, (some) => some!);
 
-  Future<T> getOrElseDo<T>(T Function() fallback) =>
-      fold(() => fallback(), (some) => some! as T);
+  Future<T> orElseDo(T Function() fallback) =>
+      fold(() => fallback(), (some) => some!);
 
-  Future<Option<R>> map<R, T>(R Function(T t) f) =>
-      fold(() => None(), (v) => Some(f(v! as T)));
+  Future<T> orElseDoFuture(Future<T> Function() fallback) =>
+      foldFuture(() => fallback(), (some) => Future.value(some!));
 
-  Future<Option<R>> bind<R, T>(Option<R> Function(T t) f) =>
-      fold(() => None(), (v) => f(v! as T));
+  Future<Option<T>> orElseMap(T defaultVal) =>
+      fold(() => Some(defaultVal), (some) => Some(some!));
 
-  Future<TR> foldFuture<TR, T>(
-      Future<TR> Function() noneF, Future<TR> Function(T val) someF) {
+  Future<Option<T>> orElseMapFuture(Future<T> defaultVal) =>
+      foldFuture(() => defaultVal.then((value) => Some(value)), (val) => Some(val).toFuture());
+
+  Future<Option<T>> orElseBind(Option<T> Function() fallback) =>
+      fold(() => fallback(), (some) => Some(some!));
+
+  Future<Option<T>> orElseBindFuture(Future<Option<T>> Function() fallback) =>
+      foldFuture(() => fallback(), (some) => Future.value(Some(some!)));
+
+  Future<Option<R>> map<R>(R Function(T t) f) =>
+      fold(() => None(), (v) => Some(f(v!)));
+
+  Future<Option<R>> bind<R>(Option<R> Function(T t) f) =>
+      fold(() => None(), (v) => f(v!));
+
+  Future<TR> foldFuture<TR>(Future<TR> Function() noneF, Future<TR> Function(T val) someF) {
     return then((value) => value.fold(() => noneF().then((value) => value),
         (val) => someF(val).then((value) => value)));
   }
 
-  Future<Option<R>> mapFuture<R, T>(Future<R> Function(T t) f) => foldFuture(
-      () => None().toFuture() as Future<Option<R>>, (some) => f(some! as T).then((value) => Some(value)));
+  Future<Option<R>> mapFuture<R>(Future<R> Function(T t) f) => foldFuture(
+      () => None().toFuture() as Future<Option<R>>, (some) => f(some!).then((value) => Some(value)));
 
-  Future<Option<R>> bindFuture<R, T>(Future<Option<R>> Function(T t) f) =>
-      foldFuture(() => None().toFuture() as Future<Option<R>>, (v) => f(v! as T));
+  Future<Option<R>> bindFuture<R>(Future<Option<R>> Function(T t) f) =>
+      foldFuture(() => None().toFuture() as Future<Option<R>>, (v) => f(v!));
 }
 
 class EmptyOption extends Option{

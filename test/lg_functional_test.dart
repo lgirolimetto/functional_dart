@@ -1,6 +1,4 @@
 import 'package:lg_functional_dart/lg_functional_dart.dart';
-import 'package:lg_functional_dart/src/option.dart';
-import 'package:lg_functional_dart/src/validation.dart';
 import 'package:test/test.dart';
 
 class Animal {
@@ -126,41 +124,45 @@ void main() {
       Option<int> getOne (bool isSome) => isSome ? Some(1) : None();
       Option<int> getTwo (bool isSome) => isSome ? Some(2) : None();
 
-      Future<Validation<String>> getValidation(bool isInerror) => isInerror ? Invalid<String>([Exception('Failed').toFail()]).toFuture()
+      Future<Validation<String>> getValidation(bool isInerror) => isInerror ? Invalid<String>(Exception('Failed').toFail()).toFuture()
                                                                             : Valid('Stringa valida').toFuture();
       final oi = getOne(true).toFutureOrElseDo(() => 
                     getValidation(true).fold((failures) => None(), 
-                                              (val) => getTwo(true).getOrElseMap(() => 3)
+                                              (val) => getTwo(true).orElseMap(() => 3)
                   ));
       final one = await oi;
-      expect(one.getOrElse(0), 1);
-      print (one.getOrElse(0));
+      expect(one.orElse(0), 1);
+      print (one.orElse(0));
 
       final none = await getOne(false).toFutureOrElseDo(() => 
                     getValidation(true).fold((failures) => None<int>(), 
-                                              (val) => getTwo(true).getOrElseMap(() => 3)
+                                              (val) => getTwo(true).orElseMap(() => 3)
                   ));
       expect(none.isSome, isFalse);
 
       final two = await getOne(false).toFutureOrElseDo(() => 
                     getValidation(false).fold((failures) => None<int>(), 
-                                              (val) => getTwo(true).getOrElseMap(() => 3)
+                                              (val) => getTwo(true).orElseMap(() => 3)
                   ));
-      expect(two.getOrElse(0), 2);
+      expect(two.orElse(0), 2);
 
       final three = await getOne(false).toFutureOrElseDo(() => 
                     getValidation(false).fold((failures) => None<int>(), 
-                                              (val) => getTwo(false).getOrElseMap(() => 3)
+                                              (val) => getTwo(false).orElseMap(() => 3)
                   ));
-      expect(three.getOrElse(0), 3);
+      expect(three.orElse(0), 3);
 
-      await AssertionError ().toFail().toIterable().toInvalid<int>().toFuture();      
+      await AssertionError().toFail().toInvalid<int>().toFuture();
     });
 
-    test('Option tests', () async {
+    test('Iterable tests', () async {
       final listOfOptions = [Some('Ciao'), Some('Hei'), None<String>()];
-      final flatList = listOfOptions.flatten();
+      var flatList = listOfOptions.flatten();
       expect(flatList.length, 2);
+
+      final list = [['Ciao', 'Hei'], ['Hello']];
+      flatList = list.flatten();
+      expect(flatList, ['Ciao', 'Hei', 'Hello']);
     });
   });
 }

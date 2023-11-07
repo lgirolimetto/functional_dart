@@ -1,5 +1,4 @@
 import 'package:lg_functional_dart/lg_functional_dart.dart';
-import 'package:lg_functional_dart/src/either.dart';
 
 /// Classe di errore usata nella `Validation` e può contenere un `Error` o un'`Exception`
 /// Molto simile come concetto a `Either`
@@ -39,7 +38,7 @@ class Fail {
   /// Crea un Iterable con un solo elemento contenente il Fail corrente
   Iterable<Fail> toIterable () => [this];
 
-  Validation<T> toInvalid<T> () => toIterable().toInvalid<T>();
+  Validation<T> toInvalid<T> () => Invalid<T>(this);
 }
 
 extension ExceptionToFailExtension on Exception {
@@ -50,10 +49,4 @@ extension ExceptionToFailExtension on Exception {
 extension ErrorToFailExtension on Error {
   Fail toFail([String message = '']) => Fail.withError(this, message: message);
   Validation<T> toInvalid<T> () => toFail ().toInvalid<T>();
-}
-
-extension IterabeFailExtension on Iterable<Fail>
-{
-  Validation<T> toInvalid<T> () => Invalid<T> (this);
-
 }
