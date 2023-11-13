@@ -1,4 +1,4 @@
-import 'package:lg_functional_dart/lg_functional_dart.dart';
+import 'package:cyrus72_functional_dart/cyrus72_functional_dart.dart';
 
 Validation<T> retry<T>(Validation<T> Function() action, {required int maxRetries}) {
   return [for (var i = 1; i <= maxRetries; i++) i]

@@ -1,6 +1,6 @@
-import 'package:lg_functional_dart/lg_functional_dart.dart';
-import 'package:lg_functional_dart/src/iterator_extensions.dart';
-import 'package:lg_functional_dart/src/validation.dart';
+import 'package:cyrus72_functional_dart/cyrus72_functional_dart.dart';
+import 'package:cyrus72_functional_dart/src/iterator_extensions.dart';
+import 'package:cyrus72_functional_dart/src/validation.dart';
 
 const Empty = EmptyOption.none();
 

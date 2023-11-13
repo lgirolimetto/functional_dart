@@ -1,4 +1,4 @@
-import 'package:lg_functional_dart/lg_functional_dart.dart';
+import 'package:cyrus72_functional_dart/cyrus72_functional_dart.dart';
 
 typedef EmptyValidationValue = String;
 const EmptyValidationValue EmptyValue = '';

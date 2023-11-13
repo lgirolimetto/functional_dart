@@ -13,7 +13,7 @@
 // public static IO<Unit> DelayAction([NotNull] Action? aToDelay)
 // => new(aToDelay?.ToFunc() ?? throw new ArgumentNullException(nameof(aToDelay)));
 
-import 'package:lg_functional_dart/lg_functional_dart.dart';
+import 'package:cyrus72_functional_dart/cyrus72_functional_dart.dart';
 
 IO<T> Pure<T>(T value) => IO.pure(value);
 IO<T> Delay<T>(T Function() f) => IO.delay(f);
