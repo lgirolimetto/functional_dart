@@ -12,4 +12,5 @@ export 'src/option.dart';
 export 'src/either.dart';
 export 'src/fail.dart';
 export 'src/try.dart';
+export 'src/unit.dart';
 export 'src/utils.dart';
