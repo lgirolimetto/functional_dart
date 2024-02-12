@@ -1,4 +1,4 @@
-import 'package:cyrus72_functional_dart/cyrus72_functional_dart.dart';
+import 'package:basic_functional_dart/basic_functional_dart.dart';
 
 Validation<T> Try<T>(T Function () tryBlock) {
   try

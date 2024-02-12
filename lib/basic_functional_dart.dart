@@ -1,7 +1,7 @@
 /// Support for doing something awesome.
 ///
 /// More dartdocs go here.
-library cyrus72_functional_dart;
+library basic_functional_dart;
 
 
 export 'src/iterator_extensions.dart';

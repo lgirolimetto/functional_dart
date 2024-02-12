@@ -1,4 +1,4 @@
-import 'package:cyrus72_functional_dart/cyrus72_functional_dart.dart';
+import 'package:basic_functional_dart/basic_functional_dart.dart';
 
 extension FunctionExtensions<T1, T2, R> on R Function(T1, T2) {
   R Function(T2, T1) swapArgs() => (T2 t2, T1 t1) => this(t1, t2);
