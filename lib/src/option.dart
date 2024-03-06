@@ -120,3 +120,9 @@ class NoValue extends Option{
 extension NoValueExtension on NoValue{
   Validation<NoValue> toValid() => Valid(this);
 }
+
+extension OptionExtension<T> on Option<T> {
+  T? toNullable() {
+    return fold(() => null, (some) => some);
+  }
+}
