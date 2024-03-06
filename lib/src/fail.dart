@@ -4,12 +4,13 @@ import 'package:basic_functional_dart/basic_functional_dart.dart';
 /// Molto simile come concetto a `Either`
 class Fail {
   final String message;
+  final int internalErrorCode;
   final Either<Error, Exception> _failedWith;
   
-  Fail.withError(Error error, {String message = ''}) : message = message,
+  Fail.withError(Error error, {String message = '', int internalErrorCode = -1}) : message = message, internalErrorCode = internalErrorCode,
                                                       _failedWith = Left<Error, Exception>(error);
       
-  Fail.withException(Exception exception, {String message = ''}) : message = message,
+  Fail.withException(Exception exception, {String message = '', int internalErrorCode = -1}) : message = message, internalErrorCode = internalErrorCode,
                                                                   _failedWith = Right<Error, Exception>(exception);
 
   /// Restituisce il messaggio dell'Error o dell'Exception
@@ -42,11 +43,11 @@ class Fail {
 }
 
 extension ExceptionToFailExtension on Exception {
-  Fail toFail([String message = '']) => Fail.withException(this, message: message);
+  Fail toFail({String message = '', int internalErrorCode = -1}) => Fail.withException(this, message: message, internalErrorCode: internalErrorCode);
   Validation<T> toInvalid<T> () => toFail ().toInvalid<T>();
 }
 
 extension ErrorToFailExtension on Error {
-  Fail toFail([String message = '']) => Fail.withError(this, message: message);
+  Fail toFail({String message = '', int internalErrorCode = -1}) => Fail.withError(this, message: message, internalErrorCode: internalErrorCode);
   Validation<T> toInvalid<T> () => toFail ().toInvalid<T>();
 }

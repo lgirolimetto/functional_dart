@@ -44,7 +44,7 @@ class IO<T> {
     }
     else
     {
-      return Try(_delayedFunction!);
+      return tryCatch(_delayedFunction!);
     }
   }
 }
