@@ -87,6 +87,7 @@ class Validation<T> {
 
   Option<T> toOption() => isValid ? Some(_value!) : None<T>();
 
+  @Deprecated('Use [tryCatch]')
   static Validation<T> Try<T>(T Function() f, {String failMessage = ''}) {
     try{
       return Valid(f());
@@ -98,7 +99,8 @@ class Validation<T> {
       return Invalid<T>(fail);
     }
   }
- 
+
+  @Deprecated('Use [tryCatch] on Future<T> extension')
  static Future<Validation<T>> tryFuture<T>(Future<T> Function() f) 
         => f().then(Valid)
               .catchError((err) {
