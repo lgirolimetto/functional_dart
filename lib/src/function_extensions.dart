@@ -32,16 +32,3 @@ extension FunctionExtensions6<T1, T2, T3, T4, T5, T6, T7, R> on R Function(T1, T
   R Function(T2, T3, T4, T5, T6, T7) apply(T1 t1) => (T2 t2, T3 t3, T4 t4, T5 t5, T6 t6, T7 t7) => this(t1, t2, t3, t4, t5, t6, t7);
   R Function() applyAll(T1 t1, T2 t2, T3 t3, T4 t4, T5 t5, T6 t6, T7 t7) => () => this(t1, t2, t3, t4, t5, t6, t7);
 }
-
-
-extension ManageFutureExceptions<T> on Future<T> Function () {
-  Future<Validation<T>> Try () {
-    return Validation.tryFuture(this);
-  }
-}
-
-extension ManageExceptions<T> on T Function () {
-  Validation<T> Try() {
-    return Validation.Try(this);
-  }
-}
