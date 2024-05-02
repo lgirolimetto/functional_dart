@@ -1,3 +1,8 @@
+extension FunctionExtensions0<T1, R> on R Function(T1) {
+  R Function() apply(T1 t1) => () => this(t1);
+  R Function() Function(T1) curry() => (T1 t1) => () => this(t1);
+}
+
 extension FunctionExtensions<T1, T2, R> on R Function(T1, T2) {
   R Function(T2, T1) swapArgs() => (T2 t2, T1 t1) => this(t1, t2);
   R Function(T2) apply(T1 t1) => (T2 t2) => this(t1, t2);

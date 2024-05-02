@@ -20,3 +20,4 @@ export 'src/validated_result_version/iterator_extensions.dart';
 export 'src/validated_result_version/failure.dart';
 export 'src/validated_result_version/try.dart';
 export 'src/validated_result_version/retry_strategies.dart';
+export 'src/validated_result_version/utils.dart';

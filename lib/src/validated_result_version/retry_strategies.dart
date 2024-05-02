@@ -5,14 +5,14 @@ sealed class RetryStrategy {
 
 class LinearRetry extends RetryStrategy {
   final Duration delayDuration;
-  const LinearRetry({super.nRetries, required this.delayDuration});
+  const LinearRetry({super.nRetries, this.delayDuration = const Duration(milliseconds: 300)});
 }
 
 class IncrementalRetry extends LinearRetry {
   final Duration Function(Duration initialDelay, int nTry)? calcIncremental;
   const IncrementalRetry({
     super.nRetries,
-    required super.delayDuration,
+    super.delayDuration,
     this.calcIncremental
   });
 }

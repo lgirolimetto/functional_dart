@@ -61,10 +61,10 @@ class ValidatedResult<T> {
       fold((invalid) => fallback(), (valid) => Future.value(ValidResult(valid)));
 
   // orElseTry versions Do not need map or bind: function f is always considered to be fallible
-  ValidatedResult<T> orElseTry(T Function() f, {String? errorMessage, int? internalErrorCode}) =>
+  ValidatedResult<T> _orElseTry(T Function() f, {String? errorMessage, int? internalErrorCode}) =>
       fold((invalid) => f.try_(errorMessage: errorMessage, internalErrorCode: internalErrorCode), (some) => this);
 
-  Future<ValidatedResult<T>> orElseTryFuture(Future<T> Function() f, {String? errorMessage, int? internalErrorCode}) =>
+  Future<ValidatedResult<T>> _orElseTryFuture(Future<T> Function() f, {String? errorMessage, int? internalErrorCode}) =>
       fold((invalid) => f.try_(errorMessage: errorMessage, internalErrorCode: internalErrorCode), (some) => this.toValidFuture_());
   /////////////////
 
@@ -134,10 +134,10 @@ extension FutureValidatedResult<T> on Future<ValidatedResult<T>> {
   Future<ValidatedResult<T>> orElseBindFuture(Future<ValidatedResult<T>> Function() fallback) =>
       foldFuture((invalid) => fallback(), (valid) => Future.value(ValidResult(valid)));
 
-  Future<ValidatedResult<T>> orElseTry(T Function() fallback, {String? errorMessage, int? internalErrorCode}) =>
+  Future<ValidatedResult<T>> _orElseTry(T Function() fallback, {String? errorMessage, int? internalErrorCode}) =>
       fold((invalid) => fallback.try_(errorMessage: errorMessage, internalErrorCode: internalErrorCode), (valid) => ValidResult(valid));
 
-  Future<ValidatedResult<T>> orElseTryFuture(Future<T> Function() fallback, {String? errorMessage, int? internalErrorCode}) =>
+  Future<ValidatedResult<T>> _orElseTryFuture(Future<T> Function() fallback, {String? errorMessage, int? internalErrorCode}) =>
       foldFuture((invalid) => fallback.try_(errorMessage: errorMessage, internalErrorCode: internalErrorCode), (valid) => Future.value(ValidResult(valid)));
 
   Future<ValidatedResult<R>> map<R>(R Function(T t) f) =>
@@ -169,3 +169,42 @@ extension FutureValidatedResult<T> on Future<ValidatedResult<T>> {
       foldFuture((fail) => InvalidResult<R>(fail).toFuture(), (v) => (() => f(v)).try_(errorMessage: errorMessage, internalErrorCode: internalErrorCode));
 }
 
+extension OrElseFunctionTuple<T, R> on ValidatedResult<(T Function(), R lastValidInput)> {
+  ValidatedResult<T> orElseTry(T Function(R) fallback, {String? errorMessage, int? internalErrorCode}) =>
+      fold(
+        (failure) => failure.toInvalid(),
+        (val) => try_(val.$1)._orElseTry(() => fallback(val.$2))
+      );
+
+  Future<ValidatedResult<T>> orElseTryFuture(Future<T> Function(R) fallback, {String? errorMessage, int? internalErrorCode}) =>
+      fold(
+        (failure) => failure.toInvalid<T>().toFuture(),
+        (val) => try_(val.$1)._orElseTryFuture(() => fallback(val.$2))
+      );
+
+  Future<ValidatedResult<T>> orElseRetry(T Function(R) fallback, {String? errorMessage, int? internalErrorCode}) =>
+      fold(
+        (failure) => failure.toInvalid<T>().toFuture(),
+        (val) => try_(val.$1).orElseBindFuture(() => fallback.apply(val.$2).retryLinear())
+      );
+
+  Future<ValidatedResult<T>> orElseRetryFuture(T Function(R) fallback, {String? errorMessage, int? internalErrorCode}) =>
+      fold(
+        (failure) => failure.toInvalid<T>().toFuture(),
+        (val) => try_(val.$1).orElseBindFuture(() => fallback.apply(val.$2).retryLinear())
+      );
+}
+
+extension OrElseFutureFunctionTuple<T, R> on ValidatedResult<(Future<T> Function(), R lastValidInput)> {
+  Future<ValidatedResult<T>> orElseTry(T Function(R) fallback, {String? errorMessage, int? internalErrorCode}) =>
+      fold(
+        (failure) => failure.toInvalid<T>().toFuture(),
+        (val) => tryFuture(val.$1)._orElseTry(() => fallback(val.$2))
+      );
+
+  Future<ValidatedResult<T>> orElseTryFuture(Future<T> Function(R) fallback, {String? errorMessage, int? internalErrorCode}) =>
+      fold(
+        (failure) => failure.toInvalid<T>().toFuture(),
+        (val) => tryFuture(val.$1)._orElseTryFuture(() => fallback(val.$2))
+      );
+}

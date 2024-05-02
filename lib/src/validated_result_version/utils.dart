@@ -41,8 +41,16 @@ extension RetryStrategyExt<T> on T Function() {
           startInvalidResult(),
           (previousValue, tuple) => rs
                                     .delay(tuple.nTry)
-                                    .then((_) => previousValue.orElseTry(tuple.action))
+                                    .then((_) => previousValue._orElseTry(tuple.action))
         );
+  }
+
+  Future<ValidatedResult<T>> retryLinear([LinearRetry lr = const LinearRetry()]) {
+    return retry(lr);
+  }
+
+  Future<ValidatedResult<T>> retryIncremental([IncrementalRetry ir = const IncrementalRetry()]) {
+    return retry(ir);
   }
 }
 
@@ -54,8 +62,16 @@ extension RetryStrategyOnFuture<T> on Future<T> Function() {
           startInvalidResult(),
           (previousValue, tuple) => rs
                                       .delay(tuple.nTry)
-                                      .then((_) => previousValue.orElseTryFuture(tuple.action))
+                                      .then((_) => previousValue._orElseTryFuture(tuple.action))
         );
+  }
+
+  Future<ValidatedResult<T>> retryLinear([LinearRetry lr = const LinearRetry()]) {
+    return retry(lr);
+  }
+
+  Future<ValidatedResult<T>> retryIncremental([IncrementalRetry ir = const IncrementalRetry()]) {
+    return retry(ir);
   }
 }
 
@@ -70,6 +86,14 @@ extension RetryStrategyValidatedResult<T> on ValidatedResult<T> Function() {
                                       .then((_) => previousValue.orElseBind(tuple.action))
         );
   }
+
+  Future<ValidatedResult<T>> retryLinear([LinearRetry lr = const LinearRetry()]) {
+    return retry(lr);
+  }
+
+  Future<ValidatedResult<T>> retryIncremental([IncrementalRetry ir = const IncrementalRetry()]) {
+    return retry(ir);
+  }
 }
 
 extension RetryStrategyValidatedResultFuture<T> on Future<ValidatedResult<T>> Function() {
@@ -82,5 +106,81 @@ extension RetryStrategyValidatedResultFuture<T> on Future<ValidatedResult<T>> Fu
                                         .delay(tuple.nTry)
                                         .then((value) => previousValue.orElseBindFuture(tuple.action))
         );
+  }
+
+  Future<ValidatedResult<T>> retryLinear([LinearRetry lr = const LinearRetry()]) {
+    return retry(lr);
+  }
+
+  Future<ValidatedResult<T>> retryIncremental([IncrementalRetry ir = const IncrementalRetry()]) {
+    return retry(ir);
+  }
+}
+
+extension RetryStrategyFunctionValidatedResult<T> on ValidatedResult<T Function()> {
+  Future<ValidatedResult<T>> retry(RetryStrategy rs) {
+    return fold(
+      (failure) => failure.toInvalid<T>().toFuture(),
+      (val) => val.retry(rs)
+    );
+  }
+
+  Future<ValidatedResult<T>> retryLinear([LinearRetry lr = const LinearRetry()]) {
+    return retry(lr);
+  }
+
+  Future<ValidatedResult<T>> retryIncremental([IncrementalRetry ir = const IncrementalRetry()]) {
+    return retry(ir);
+  }
+}
+
+extension RetryStrategyFunctionValidatedResultF<T> on ValidatedResult<Future<T> Function()> {
+  Future<ValidatedResult<T>> retry(RetryStrategy rs) {
+    return fold(
+            (failure) => failure.toInvalid<T>().toFuture(),
+            (val) => val.retry(rs)
+    );
+  }
+
+  Future<ValidatedResult<T>> retryLinear([LinearRetry lr = const LinearRetry()]) {
+    return retry(lr);
+  }
+
+  Future<ValidatedResult<T>> retryIncremental([IncrementalRetry ir = const IncrementalRetry()]) {
+    return retry(ir);
+  }
+}
+
+extension RetryStrategyFutureFunctionValidatedResult<T> on Future<ValidatedResult<T Function()>> {
+  Future<ValidatedResult<T>> retry(RetryStrategy rs) {
+    return foldFuture(
+            (failure) => failure.toInvalid<T>().toFuture(),
+            (val) => val.retry(rs)
+    );
+  }
+
+  Future<ValidatedResult<T>> retryLinear([LinearRetry lr = const LinearRetry()]) {
+    return retry(lr);
+  }
+
+  Future<ValidatedResult<T>> retryIncremental([IncrementalRetry ir = const IncrementalRetry()]) {
+    return retry(ir);
+  }
+}
+
+extension RetryStrategyFutureFunctionValidatedResultFF<T> on Future<ValidatedResult<Future<T> Function()>> {
+  Future<ValidatedResult<T>> retry(RetryStrategy rs) {
+    return foldFuture(
+            (failure) => failure.toInvalid<T>().toFuture(),
+            (val) => val.retry(rs)
+    );
+  }
+
+  Future<ValidatedResult<T>> retryLinear([LinearRetry lr = const LinearRetry()]) {
+    return retry(lr);
+  }
+
+  Future<ValidatedResult<T>> retryIncremental([IncrementalRetry ir = const IncrementalRetry()]) {
+    return retry(ir);
   }
 }

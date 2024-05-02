@@ -291,6 +291,10 @@ void main() {
         return 3 * d;
       }
 
+      Future<double> futureMulBy3(double d) {
+        return Future.value(3 * d);
+      }
+
       double mulBy6(double d) {
         print('mulBy6');
         return 6 * d;
@@ -313,11 +317,10 @@ void main() {
         () => failDouble(),
         internalErrorCode: errorCodeGetDoubleFail
       )
-      .try_(
-        (d) => mulBy3(d),
-        internalErrorCode: errorCodeMulFail
-      )
-      // .orElseTry(() => mulBy6(d))
+      .map((d) => (mulBy3.apply(d), d))
+      .orElseRetry((d) => mulBy3(d))
+      .map((d) => futureMulBy3.apply(d))
+      .retryLinear()
       .fold(
         (failure) => expect(failure.internalErrorCode, errorCodeGetDoubleFail),
         (val) => fail('Failure expected')
