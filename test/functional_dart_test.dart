@@ -164,5 +164,165 @@ void main() {
       flatList = list.flatten();
       expect(flatList, ['Ciao', 'Hei', 'Hello']);
     });
+
+    test('ValidatedResult test', () async {
+      double getDouble() {
+        return 2.0;
+      }
+
+      Future<double> getFutureDouble() {
+        return 2.0.toFuture();
+      }
+
+      double failDouble() {
+        throw Error();
+      }
+
+      Future<double> failFutureDouble() {
+        throw Error();
+      }
+
+      double mulBy3(double d) {
+        print('mulBy3');
+        return 3 * d;
+      }
+
+      Future<double> futureMulBy3(double d) {
+        return Future
+                .value(3 * d)
+                .then((value) {
+                  print('future mulBy3');
+                  return value;
+                });
+      }
+
+      double failMulBy3(double d) {
+        throw Error();
+      }
+
+      Future<double> failFutureMulBy3(double d) {
+        return Future.value(1.0).then((value) => throw Error());
+      }
+
+      Future<double> syncFailFutureMulBy3(double d) {
+        return throw Error();
+      }
+
+      try_(() => failDouble())
+        .try_((val) => mulBy3(val))
+        .fold(
+          (failure) => failure
+                        .fold(
+                          (err) => print(err),
+                          (exc) => fail('Expected failure with Error')
+                        ),
+          (val) => fail('Expected failure')
+        );
+
+      try_(() => getDouble())
+          .try_((val) => mulBy3(val))
+          .fold(
+            (failure) => fail('Expected Success'),
+            (val) => expect(val, 6)
+          );
+
+      await try_(() => getDouble())
+          .tryFuture((val) => failFutureMulBy3(val))
+          .fold(
+              (failure) => print(failure),
+              (val) => fail('Expected Failure')
+      );
+
+      await tryFuture(() => getFutureDouble())
+          .try_((val) => mulBy3(val))
+          .fold(
+              (failure) => fail('Expected Success'),
+              (val) => expect(val, 6)
+      );
+
+      await tryFuture(() => getFutureDouble())
+          .tryFuture((val) => futureMulBy3(val))
+          .fold(
+              (failure) => fail('Expected Success'),
+              (val) => expect(val, 6)
+      );
+
+      await tryFuture(() => getFutureDouble())
+          .tryFuture((val) => failFutureMulBy3(val))
+          .fold(
+              (failure) => failure
+                            .fold(
+                              (err) => print(err),
+                              (exc) => fail('Expected failure with Error'),
+                            ),
+              (val) => fail('Expected Failure'),
+      );
+
+      await tryFuture(() => getFutureDouble())
+          .tryFuture((val) => syncFailFutureMulBy3(val))
+          .fold(
+            (failure) => failure
+                          .fold(
+                            (err) => print(err),
+                            (exc) => fail('Expected failure with Error'),
+                          ),
+            (val) => fail('Expected Failure'),
+          );
+    });
+
+    test('ValidatedResult with errorCode test', () async {
+      const int errorCodeGetDoubleFail = 1;
+      const int errorCodeMulFail = 2;
+
+      double getDouble() {
+        return 2.0;
+      }
+
+      double failDouble() {
+        throw Error();
+      }
+
+      double failMulBy3(double d) {
+        throw Error();
+      }
+
+      double mulBy3(double d) {
+        print('mulBy3');
+        return 3 * d;
+      }
+
+      double mulBy6(double d) {
+        print('mulBy6');
+        return 6 * d;
+      }
+
+      try_(
+        () => getDouble(),
+        internalErrorCode: errorCodeGetDoubleFail
+      )
+      .try_(
+        (d) => failMulBy3(d),
+        internalErrorCode: errorCodeMulFail
+      )
+      .fold(
+        (failure) => expect(failure.internalErrorCode, errorCodeMulFail),
+        (val) => fail('Failure expected')
+      );
+
+      try_(
+        () => failDouble(),
+        internalErrorCode: errorCodeGetDoubleFail
+      )
+      .try_(
+        (d) => mulBy3(d),
+        internalErrorCode: errorCodeMulFail
+      )
+      // .orElseTry(() => mulBy6(d))
+      .fold(
+        (failure) => expect(failure.internalErrorCode, errorCodeGetDoubleFail),
+        (val) => fail('Failure expected')
+      );
+    });
+
   });
 }
