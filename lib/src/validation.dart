@@ -6,6 +6,7 @@ const EmptyValidationValue EmptyValue = '';
 Validation<T> Valid<T>(T value) => Validation.valid(value);
 Validation<T> Invalid<T>(Fail failure) => Validation.invalid(failure);
 
+@Deprecated('Use [ValidatedResult]')
 class Validation<T> {
   final Fail? _failure;
   final T? _value;

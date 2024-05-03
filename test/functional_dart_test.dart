@@ -282,6 +282,10 @@ void main() {
         throw Error();
       }
 
+      Future<double> futureFailDouble() {
+        throw Error();
+      }
+
       double failMulBy3(double d) {
         throw Error();
       }
@@ -317,19 +321,6 @@ void main() {
         () => failDouble(),
         internalErrorCode: errorCodeGetDoubleFail
       )
-      .map((d) => (futureMulBy3.apply(d), d))
-      .orElseRetryFuture((d) => futureMulBy3(d))
-      .map((d) => futureMulBy3.apply(d))
-      .retryLinear()
-      .fold(
-        (failure) => expect(failure.internalErrorCode, errorCodeGetDoubleFail),
-        (val) => fail('Failure expected')
-      );
-
-      try_(
-        () => failDouble(),
-        internalErrorCode: errorCodeGetDoubleFail
-      )
       .map((d) => (mulBy3.apply(d), d))
       .orElseRetry((d) => mulBy3(d))
       .map((d) => (futureMulBy3.apply(d), d))
@@ -340,5 +331,54 @@ void main() {
       );
     });
 
+    test('Parallel Isolates', () async {
+      var t = await List
+          .generate(10, (index) => () => index.isEven
+                                          ? Future.delayed(const Duration(seconds: 1), index.toString)
+                                          : Future<String>.delayed(const Duration(seconds: 1), throw Exception('Forced Exception'))
+                    )
+          .tryAsParallel()
+          .fold_(
+            (failures) => expect(failures.length, 5),
+            (values) => expect(values.length, 5),
+          );
+
+      t = await List
+          .generate(10, (index) => () => index.isEven
+            ? Future.delayed(const Duration(seconds: 1), index.toString)
+            : Future<String>.delayed(const Duration(seconds: 1), throw Exception('Forced Exception'))
+          )
+          .tryAsParallel()
+          .failsIfAllFailures()
+          .fold(
+            (failures) => fail('Failure not expected'),
+            (values) => expect(values.length, 5),
+      );
+
+      t = await List
+          .generate(10, (index) => () => index.isEven
+            ? Future.delayed(const Duration(seconds: 1), index.toString)
+            : Future<String>.delayed(const Duration(seconds: 1), throw Exception('Forced Exception'))
+          )
+          .tryAsParallel()
+          .failsIfSomeFailures(internalErrorCode: 5)
+          .fold(
+            (failures) => expect(failures.internalErrorCode, 5),
+            (values) => fail('Success not expected'),
+      );
+
+      t = await List
+          .generate(10, (index) => () => index.isEven
+              ? Future.delayed(const Duration(seconds: 1), index.toString)
+              : Future<String>.delayed(const Duration(seconds: 1), throw Exception('Forced Exception'))
+          )
+          .tryAsParallel()
+          .failsIfAllFailures(internalErrorCode: 5)
+          .map_((s) => '$s -> success')
+          .fold(
+            (failures) => fail('Failure not expected'),
+            (values) => expect(values, ['0 -> success', '2 -> success', '4 -> success', '6 -> success', '8 -> success']),
+      );
+    });
   });
 }

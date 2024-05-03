@@ -41,7 +41,7 @@ extension RetryStrategyExt<T> on T Function() {
           startInvalidResult(),
           (previousValue, tuple) => rs
                                     .delay(tuple.nTry)
-                                    .then((_) => previousValue._orElseTry(tuple.action))
+                                    .then((_) => previousValue.orElseTry(tuple.action))
         );
   }
 
@@ -64,7 +64,7 @@ extension RetryStrategyOnFuture<T> on Future<T> Function() {
           startInvalidResult(),
           (previousValue, tuple) => rs
                                       .delay(tuple.nTry)
-                                      .then((_) => previousValue._orElseTryFuture(tuple.action))
+                                      .then((_) => previousValue.orElseTryFuture(tuple.action))
         );
   }
 

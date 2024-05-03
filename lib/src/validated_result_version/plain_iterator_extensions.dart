@@ -62,7 +62,7 @@ extension FutureList<T> on Future<List<T>> {
 extension ParallelFutures<T> on Iterable<Future<T> Function()> {
   /// Run functions in isolates and wait the results
   /// If functions cannot be run in an Isolate, use [waitAll] instead.
-  Future<List<T>> asParallel() {
+  Future<Iterable<T>> asParallel() {
     return Future.wait(
         fold(<Future<T>>[], (previousValue, function) => previousValue.toIList().add(Isolate.run(function)))
     );
@@ -70,7 +70,7 @@ extension ParallelFutures<T> on Iterable<Future<T> Function()> {
 
   /// Run functions in isolates and wait the results, collecting successes and failures
   /// If functions cannot be run in an Isolate, use [tryWaitAll] instead.
-  Future<List<ValidatedResult<T>>> tryAsParallel() {
+  Future<Iterable<ValidatedResult<T>>> tryAsParallel() {
     return Future.wait(
         fold(<Future<ValidatedResult<T>>>[], (previousValue, function) => previousValue.toIList().add(Isolate.run(function.try_)))
     );
@@ -79,7 +79,7 @@ extension ParallelFutures<T> on Iterable<Future<T> Function()> {
   /// Run functions and wait the results
   /// Use this function if functions to be waited cannot be run (or you don't want them to run) in an isolate
   /// Otherwise use [asParallel]
-  Future<List<T>> waitAll() {
+  Future<Iterable<T>> waitAll() {
     return Future.wait(
         fold(<Future<T>>[], (previousValue, function) => previousValue.toIList().add(function()))
     );
@@ -88,7 +88,7 @@ extension ParallelFutures<T> on Iterable<Future<T> Function()> {
   /// Run functions and wait the results, collecting successes ir failures
   /// Use this function if functions to be waited cannot be run (or you don't want them to run) in an isolate
   /// Otherwise use [tryAsParallel]
-  Future<List<ValidatedResult<T>>> tryWaitAll() {
+  Future<Iterable<ValidatedResult<T>>> tryWaitAll() {
     return Future.wait(
         fold(<Future<ValidatedResult<T>>>[], (previousValue, function) => previousValue.toIList().add(function.try_()))
     );
@@ -98,7 +98,7 @@ extension ParallelFutures<T> on Iterable<Future<T> Function()> {
 extension Parallel<T> on Iterable<T Function()> {
   /// Run functions in isolates and wait the results
   /// If functions cannot be run in an Isolate, use [waitAll] instead.
-  Future<List<T>> asParallel() {
+  Future<Iterable<T>> asParallel() {
     return Future.wait(
         fold(<Future<T>>[], (previousValue, function) => previousValue.toIList().add(Isolate.run(function)))
     );
@@ -106,7 +106,7 @@ extension Parallel<T> on Iterable<T Function()> {
 
   /// Run functions in isolates and wait the results, collecting successes and failures
   /// If functions cannot be run in an Isolate, use [tryWaitAll] instead.
-  Future<List<ValidatedResult<T>>> tryAsParallel() {
+  Future<Iterable<ValidatedResult<T>>> tryAsParallel() {
     return Future.wait(
         fold(<Future<ValidatedResult<T>>>[], (previousValue, function) => previousValue.toIList().add(Isolate.run(function.try_)))
     );
@@ -114,7 +114,7 @@ extension Parallel<T> on Iterable<T Function()> {
 }
 
 extension FutureIterableFuture<T> on Future<Iterable<Future<T>>> {
-  Future<List<T>> flatten() {
+  Future<Iterable<T>> flatten() {
     return then((l) => Future.wait(l));
   }
 
@@ -132,27 +132,27 @@ extension FutureLFuture<T> on Future<List<Future<T>>> {
 extension ParallelFuturesEx<T> on Future<Iterable<Future<T> Function()>> {
   /// Run functions in isolates and wait the results
   /// If functions cannot be run in an Isolate, use [waitAll] instead.
-  Future<List<T>> asParallel() {
+  Future<Iterable<T>> asParallel() {
     return then((value) => value.asParallel());
   }
 
   /// Run functions in isolates and wait the results, collecting successes and failures
   /// If functions cannot be run in an Isolate, use [tryWaitAll] instead.
-  Future<List<ValidatedResult<T>>> tryAsParallel() {
+  Future<Iterable<ValidatedResult<T>>> tryAsParallel() {
     return then((value) => value.tryAsParallel());
   }
 
   /// Run functions and wait the results
   /// Use this function if functions to be waited cannot be run (or you don't want them to run) in an isolate
   /// Otherwise use [asParallel]
-  Future<List<T>> waitAll() {
+  Future<Iterable<T>> waitAll() {
     return then((value) => value.waitAll());
   }
 
   /// Run functions and wait the results, collecting successes ir failures
   /// Use this function if functions to be waited cannot be run (or you don't want them to run) in an isolate
   /// Otherwise use [tryAsParallel]
-  Future<List<ValidatedResult<T>>> tryWaitAll() {
+  Future<Iterable<ValidatedResult<T>>> tryWaitAll() {
     return then((value) => value.tryWaitAll());
   }
 }
@@ -160,13 +160,13 @@ extension ParallelFuturesEx<T> on Future<Iterable<Future<T> Function()>> {
 extension FutureParallelFuturesEx<T> on Future<Iterable<T Function()>> {
   /// Run functions in isolates and wait the results
   /// If functions cannot be run in an Isolate, use [waitAll] instead.
-  Future<List<T>> asParallel() {
+  Future<Iterable<T>> asParallel() {
     return then((value) => value.asParallel());
   }
 
   /// Run functions in isolates and wait the results, collecting successes and failures
   /// If functions cannot be run in an Isolate, use [tryWaitAll] instead.
-  Future<List<ValidatedResult<T>>> tryAsParallel() {
+  Future<Iterable<ValidatedResult<T>>> tryAsParallel() {
     return then((value) => value.tryAsParallel());
   }
 }

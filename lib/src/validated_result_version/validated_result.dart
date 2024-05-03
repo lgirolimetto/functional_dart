@@ -16,19 +16,21 @@ class ValidatedResult<T> {
       : _failure = failure,
         _value = null;
 
+  /// Use [fold] to extract the result or the [Failure]
   TR fold<TR>(TR Function(Failure failure) invalid,
               TR Function(T val) valid) 
   {
     return isValid ? valid(_value!) : invalid(_failure!);
   }
       
-
+  /// Extract all valid results
   Iterable<T> asIterable() sync* {
     if (isValid) {
       yield _value!;
     }
   }
 
+  /// Extract all failures
   Iterable<Failure> asFailIterable() sync* {
     if (!isValid) {
       yield _failure!;
@@ -68,9 +70,11 @@ class ValidatedResult<T> {
       fold((invalid) => f.try_(errorMessage: errorMessage, internalErrorCode: internalErrorCode), (some) => this.toValidFuture_());
   /////////////////
 
+  /// Use [map] to chain a function that do not return a Future and cannot fail
   ValidatedResult<R> map<R>(R Function(T val) f) =>
       fold((err) => InvalidResult<R>(err), (v) => ValidResult(f(v)));
 
+  /// Use [mapFuture] to chain a function that return a Future and cannot fail
   Future<ValidatedResult<R>> mapFuture<R>(Future<R> Function(T val) f) =>
       fold((err) => InvalidResult<R>(err).toFuture(), (v) => f(v).then((value) => ValidResult(value)));
 
@@ -81,15 +85,19 @@ class ValidatedResult<T> {
     return this;
   }
 
+  /// Use [bind] to chain a function that return a [ValidatedResult]
   ValidatedResult<R> bind<R>(ValidatedResult<R> Function(T val) f) =>
       fold((fails) => fails.toInvalid(), (v) => f(v));
 
+  /// Use [bindFuture] to chain a function that return a Future<[ValidatedResult]>
   Future<ValidatedResult<R>> bindFuture<R>(Future<ValidatedResult<R>> Function(T val) f) =>
       fold((fails) => fails.toInvalid<R>().toFuture(), (v) => f(v));
 
+  /// Use [try_] to chain a function that do not return a Future and that can fail
   ValidatedResult<R> try_<R>(R Function(T val) f, {String? errorMessage, int? internalErrorCode}) =>
       fold((fails) => fails.toInvalid<R>(), (v) => (() => f(v)).try_(errorMessage: errorMessage, internalErrorCode: internalErrorCode));
 
+  /// Use [tryFuture] to chain a function that return a Future can fail
   Future<ValidatedResult<R>> tryFuture<R>(Future<R> Function(T val) f, {String? errorMessage, int? internalErrorCode}) =>
       fold((fails) => fails.toInvalid<R>().toFuture(), (v) => (() => f(v)).try_(errorMessage: errorMessage, internalErrorCode: internalErrorCode));
 
@@ -134,21 +142,25 @@ extension FutureValidatedResult<T> on Future<ValidatedResult<T>> {
   Future<ValidatedResult<T>> orElseBindFuture(Future<ValidatedResult<T>> Function() fallback) =>
       foldFuture((invalid) => fallback(), (valid) => Future.value(ValidResult(valid)));
 
-  Future<ValidatedResult<T>> _orElseTry(T Function() fallback, {String? errorMessage, int? internalErrorCode}) =>
+  Future<ValidatedResult<T>> orElseTry(T Function() fallback, {String? errorMessage, int? internalErrorCode}) =>
       fold((invalid) => fallback.try_(errorMessage: errorMessage, internalErrorCode: internalErrorCode), (valid) => ValidResult(valid));
 
-  Future<ValidatedResult<T>> _orElseTryFuture(Future<T> Function() fallback, {String? errorMessage, int? internalErrorCode}) =>
+  Future<ValidatedResult<T>> orElseTryFuture(Future<T> Function() fallback, {String? errorMessage, int? internalErrorCode}) =>
       foldFuture((invalid) => fallback.try_(errorMessage: errorMessage, internalErrorCode: internalErrorCode), (valid) => Future.value(ValidResult(valid)));
 
+  /// Use [map] to chain a function that do not return a Future and cannot fail
   Future<ValidatedResult<R>> map<R>(R Function(T t) f) =>
       fold((err) => InvalidResult<R>(err), (v) => ValidResult(f(v)));
 
+  /// Use [bind] to chain a function that return a [ValidatedResult]
   Future<ValidatedResult<R>> bind<R>(ValidatedResult<R> Function(T t) f) =>
       fold((fail) => InvalidResult<R>(fail), (v) => f(v));
 
+  /// Use [try_] to chain a function that do not return a Future and that can fail
   Future<ValidatedResult<R>> try_<R>(R Function(T t) f, {String? errorMessage, int? internalErrorCode}) =>
       fold((fail) => InvalidResult<R>(fail), (v) => (() => f(v)).try_(errorMessage: errorMessage, internalErrorCode: internalErrorCode));
 
+  /// Use [foldFuture] to extract the result or the [Failure] and return a [Future]
   Future<TR> foldFuture<TR>(Future<TR> Function(Failure failure) invalid,
                                                   Future<TR> Function(T val) valid) 
   {
@@ -170,24 +182,30 @@ extension FutureValidatedResult<T> on Future<ValidatedResult<T>> {
 }
 
 extension OrElseFunctionTuple<T, R> on ValidatedResult<(T Function(), R lastValidInput)> {
+  /// Use [orElseTry] to use a fallback that has as a parameter the last valid input when the previous result is a [Failure]
   ValidatedResult<T> orElseTry(T Function(R) fallback, {String? errorMessage, int? internalErrorCode}) =>
       fold(
         (failure) => failure.toInvalid(),
         (val) => try_(val.$1)._orElseTry(() => fallback(val.$2))
       );
 
+  /// Use [orElseTryFuture] to use a fallback that has as a parameter the last valid input when the previous result is a [Failure]
+  /// and the fallback returns a [Future]
   Future<ValidatedResult<T>> orElseTryFuture(Future<T> Function(R) fallback, {String? errorMessage, int? internalErrorCode}) =>
       fold(
         (failure) => failure.toInvalid<T>().toFuture(),
         (val) => try_(val.$1)._orElseTryFuture(() => fallback(val.$2))
       );
 
+  /// Use [orElseRetry] to retry a fallback that has as a parameter the last valid input when the previous result is a [Failure]
   Future<ValidatedResult<T>> orElseRetry(T Function(R) fallback, {RetryStrategy rs = const LinearRetry(), String? errorMessage, int? internalErrorCode}) =>
       fold(
         (failure) => failure.toInvalid<T>().toFuture(),
         (val) => try_(val.$1).orElseBindFuture(() => fallback.apply(val.$2).retry(rs))
       );
 
+  /// Use [orElseRetryFuture] to retry a fallback that has as a parameter the last valid input when the previous result is a [Failure]
+  /// and the fallback returns a [Future]
   Future<ValidatedResult<T>> orElseRetryFuture(Future<T> Function(R) fallback, {RetryStrategy rs = const LinearRetry(), String? errorMessage, int? internalErrorCode}) =>
       fold(
         (failure) => failure.toInvalid<T>().toFuture(),
@@ -223,24 +241,30 @@ extension OrElseFunctionTupleFutureValidated<T, R> on Future<ValidatedResult<(T 
 }
 
 extension OrElseFutureFunctionTuple<T, R> on ValidatedResult<(Future<T> Function(), R lastValidInput)> {
+  /// Use [orElseTry] to use a fallback that has as a parameter the last valid input when the previous result is a [Failure]
   Future<ValidatedResult<T>> orElseTry(T Function(R) fallback, {String? errorMessage, int? internalErrorCode}) =>
       fold(
         (failure) => failure.toInvalid<T>().toFuture(),
-        (val) => tryFuture(val.$1)._orElseTry(() => fallback(val.$2))
+        (val) => tryFuture(val.$1).orElseTry(() => fallback(val.$2))
       );
 
+  /// Use [orElseTryFuture] to use a fallback that has as a parameter the last valid input when the previous result is a [Failure]
+  /// and the fallback returns a [Future]
   Future<ValidatedResult<T>> orElseTryFuture(Future<T> Function(R) fallback, {String? errorMessage, int? internalErrorCode}) =>
       fold(
         (failure) => failure.toInvalid<T>().toFuture(),
-        (val) => tryFuture(val.$1)._orElseTryFuture(() => fallback(val.$2))
+        (val) => tryFuture(val.$1).orElseTryFuture(() => fallback(val.$2))
       );
 
+  /// Use [orElseRetry] to retry a fallback that has as a parameter the last valid input when the previous result is a [Failure]
   Future<ValidatedResult<T>> orElseRetry(T Function(R) fallback, {RetryStrategy rs = const LinearRetry(), String? errorMessage, int? internalErrorCode}) =>
       fold(
         (failure) => failure.toInvalid<T>().toFuture(),
         (val) => tryFuture(val.$1).orElseBindFuture(() => fallback.apply(val.$2).retry(rs))
       );
 
+  /// Use [orElseRetryFuture] to retry a fallback that has as a parameter the last valid input when the previous result is a [Failure]
+  /// and the fallback returns a [Future]
   Future<ValidatedResult<T>> orElseRetryFuture(Future<T> Function(R) fallback, {RetryStrategy rs = const LinearRetry(), String? errorMessage, int? internalErrorCode}) =>
       fold(
         (failure) => failure.toInvalid<T>().toFuture(),
@@ -249,24 +273,30 @@ extension OrElseFutureFunctionTuple<T, R> on ValidatedResult<(Future<T> Function
 }
 
 extension OrElseFutureFunctionTupleFutures<T, R> on Future<ValidatedResult<(Future<T> Function(), R lastValidInput)>> {
+  /// Use [orElseTry] to use a fallback that has as a parameter the last valid input when the previous result is a [Failure]
   Future<ValidatedResult<T>> orElseTry(T Function(R) fallback, {String? errorMessage, int? internalErrorCode}) =>
       foldFuture(
         (failure) => failure.toInvalid<T>().toFuture(),
-        (val) => tryFuture(val.$1)._orElseTry(() => fallback(val.$2))
+        (val) => tryFuture(val.$1).orElseTry(() => fallback(val.$2))
       );
 
+  /// Use [orElseTryFuture] to use a fallback that has as a parameter the last valid input when the previous result is a [Failure]
+  /// and the fallback returns a [Future]
   Future<ValidatedResult<T>> orElseTryFuture(Future<T> Function(R) fallback, {String? errorMessage, int? internalErrorCode}) =>
       foldFuture(
         (failure) => failure.toInvalid<T>().toFuture(),
-        (val) => tryFuture(val.$1)._orElseTryFuture(() => fallback(val.$2))
+        (val) => tryFuture(val.$1).orElseTryFuture(() => fallback(val.$2))
       );
 
+  /// Use [orElseRetry] to retry a fallback that has as a parameter the last valid input when the previous result is a [Failure]
   Future<ValidatedResult<T>> orElseRetry(T Function(R) fallback, {RetryStrategy rs = const LinearRetry(), String? errorMessage, int? internalErrorCode}) =>
       foldFuture(
         (failure) => failure.toInvalid<T>().toFuture(),
         (val) => tryFuture(val.$1).orElseBindFuture(() => fallback.apply(val.$2).retry(rs))
       );
 
+  /// Use [orElseRetryFuture] to retry a fallback that has as a parameter the last valid input when the previous result is a [Failure]
+  /// and the fallback returns a [Future]
   Future<ValidatedResult<T>> orElseRetryFuture(Future<T> Function(R) fallback, {RetryStrategy rs = const LinearRetry(), String? errorMessage, int? internalErrorCode}) =>
       foldFuture(
         (failure) => failure.toInvalid<T>().toFuture(),
