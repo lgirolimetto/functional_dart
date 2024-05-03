@@ -182,14 +182,41 @@ extension OrElseFunctionTuple<T, R> on ValidatedResult<(T Function(), R lastVali
         (val) => try_(val.$1)._orElseTryFuture(() => fallback(val.$2))
       );
 
-  Future<ValidatedResult<T>> orElseRetry(T Function(R) fallback, {String? errorMessage, int? internalErrorCode}) =>
+  Future<ValidatedResult<T>> orElseRetry(T Function(R) fallback, {RetryStrategy rs = const LinearRetry(), String? errorMessage, int? internalErrorCode}) =>
       fold(
+        (failure) => failure.toInvalid<T>().toFuture(),
+        (val) => try_(val.$1).orElseBindFuture(() => fallback.apply(val.$2).retry(rs))
+      );
+
+  Future<ValidatedResult<T>> orElseRetryFuture(Future<T> Function(R) fallback, {RetryStrategy rs = const LinearRetry(), String? errorMessage, int? internalErrorCode}) =>
+      fold(
+        (failure) => failure.toInvalid<T>().toFuture(),
+        (val) => try_(val.$1).orElseBindFuture(() => fallback.apply(val.$2).retry(rs))
+      );
+}
+
+extension OrElseFunctionTupleFutureValidated<T, R> on Future<ValidatedResult<(T Function(), R lastValidInput)>> {
+  Future<ValidatedResult<T>> orElseTry(T Function(R) fallback, {String? errorMessage, int? internalErrorCode}) =>
+      fold(
+        (failure) => failure.toInvalid<T>(),
+        (val) => try_(val.$1)._orElseTry(() => fallback(val.$2))
+      );
+
+
+  Future<ValidatedResult<T>> orElseTryFuture(Future<T> Function(R) fallback, {String? errorMessage, int? internalErrorCode}) =>
+      foldFuture(
+        (failure) => failure.toInvalid<T>().toFuture(),
+        (val) => try_(val.$1)._orElseTryFuture(() => fallback(val.$2))
+      );
+
+  Future<ValidatedResult<T>> orElseRetry(T Function(R) fallback, {String? errorMessage, int? internalErrorCode}) =>
+      foldFuture(
         (failure) => failure.toInvalid<T>().toFuture(),
         (val) => try_(val.$1).orElseBindFuture(() => fallback.apply(val.$2).retryLinear())
       );
 
-  Future<ValidatedResult<T>> orElseRetryFuture(T Function(R) fallback, {String? errorMessage, int? internalErrorCode}) =>
-      fold(
+  Future<ValidatedResult<T>> orElseRetryFuture(Future<T> Function(R) fallback, {String? errorMessage, int? internalErrorCode}) =>
+      foldFuture(
         (failure) => failure.toInvalid<T>().toFuture(),
         (val) => try_(val.$1).orElseBindFuture(() => fallback.apply(val.$2).retryLinear())
       );
@@ -206,5 +233,43 @@ extension OrElseFutureFunctionTuple<T, R> on ValidatedResult<(Future<T> Function
       fold(
         (failure) => failure.toInvalid<T>().toFuture(),
         (val) => tryFuture(val.$1)._orElseTryFuture(() => fallback(val.$2))
+      );
+
+  Future<ValidatedResult<T>> orElseRetry(T Function(R) fallback, {RetryStrategy rs = const LinearRetry(), String? errorMessage, int? internalErrorCode}) =>
+      fold(
+        (failure) => failure.toInvalid<T>().toFuture(),
+        (val) => tryFuture(val.$1).orElseBindFuture(() => fallback.apply(val.$2).retry(rs))
+      );
+
+  Future<ValidatedResult<T>> orElseRetryFuture(Future<T> Function(R) fallback, {RetryStrategy rs = const LinearRetry(), String? errorMessage, int? internalErrorCode}) =>
+      fold(
+        (failure) => failure.toInvalid<T>().toFuture(),
+        (val) => tryFuture(val.$1).orElseBindFuture(() => fallback.apply(val.$2).retry(rs))
+      );
+}
+
+extension OrElseFutureFunctionTupleFutures<T, R> on Future<ValidatedResult<(Future<T> Function(), R lastValidInput)>> {
+  Future<ValidatedResult<T>> orElseTry(T Function(R) fallback, {String? errorMessage, int? internalErrorCode}) =>
+      foldFuture(
+        (failure) => failure.toInvalid<T>().toFuture(),
+        (val) => tryFuture(val.$1)._orElseTry(() => fallback(val.$2))
+      );
+
+  Future<ValidatedResult<T>> orElseTryFuture(Future<T> Function(R) fallback, {String? errorMessage, int? internalErrorCode}) =>
+      foldFuture(
+        (failure) => failure.toInvalid<T>().toFuture(),
+        (val) => tryFuture(val.$1)._orElseTryFuture(() => fallback(val.$2))
+      );
+
+  Future<ValidatedResult<T>> orElseRetry(T Function(R) fallback, {RetryStrategy rs = const LinearRetry(), String? errorMessage, int? internalErrorCode}) =>
+      foldFuture(
+        (failure) => failure.toInvalid<T>().toFuture(),
+        (val) => tryFuture(val.$1).orElseBindFuture(() => fallback.apply(val.$2).retry(rs))
+      );
+
+  Future<ValidatedResult<T>> orElseRetryFuture(Future<T> Function(R) fallback, {RetryStrategy rs = const LinearRetry(), String? errorMessage, int? internalErrorCode}) =>
+      foldFuture(
+        (failure) => failure.toInvalid<T>().toFuture(),
+        (val) => tryFuture(val.$1).orElseBindFuture(() => fallback.apply(val.$2).retry(rs))
       );
 }

@@ -16,8 +16,9 @@ export 'src/unit.dart';
 export 'src/utils.dart';
 
 export 'src/validated_result_version/validated_result.dart';
-export 'src/validated_result_version/iterator_extensions.dart';
+export 'src/validated_result_version/validated_iterator_extensions.dart';
 export 'src/validated_result_version/failure.dart';
 export 'src/validated_result_version/try.dart';
 export 'src/validated_result_version/retry_strategies.dart';
 export 'src/validated_result_version/utils.dart';
+export 'src/validated_result_version/plain_iterator_extensions.dart';

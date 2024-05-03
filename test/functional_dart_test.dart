@@ -317,13 +317,26 @@ void main() {
         () => failDouble(),
         internalErrorCode: errorCodeGetDoubleFail
       )
-      .map((d) => (mulBy3.apply(d), d))
-      .orElseRetry((d) => mulBy3(d))
+      .map((d) => (futureMulBy3.apply(d), d))
+      .orElseRetryFuture((d) => futureMulBy3(d))
       .map((d) => futureMulBy3.apply(d))
       .retryLinear()
       .fold(
         (failure) => expect(failure.internalErrorCode, errorCodeGetDoubleFail),
         (val) => fail('Failure expected')
+      );
+
+      try_(
+        () => failDouble(),
+        internalErrorCode: errorCodeGetDoubleFail
+      )
+      .map((d) => (mulBy3.apply(d), d))
+      .orElseRetry((d) => mulBy3(d))
+      .map((d) => (futureMulBy3.apply(d), d))
+      .orElseRetry((d) => mulBy3(d))
+      .fold(
+          (failure) => expect(failure.internalErrorCode, errorCodeGetDoubleFail),
+          (val) => fail('Failure expected')
       );
     });
 

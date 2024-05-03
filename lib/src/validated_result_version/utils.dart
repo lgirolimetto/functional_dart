@@ -45,10 +45,12 @@ extension RetryStrategyExt<T> on T Function() {
         );
   }
 
+  /// Default linear retry delay is 300ms.
   Future<ValidatedResult<T>> retryLinear([LinearRetry lr = const LinearRetry()]) {
     return retry(lr);
   }
 
+  /// Default start incremental retry delay is 300ms.
   Future<ValidatedResult<T>> retryIncremental([IncrementalRetry ir = const IncrementalRetry()]) {
     return retry(ir);
   }
@@ -66,10 +68,12 @@ extension RetryStrategyOnFuture<T> on Future<T> Function() {
         );
   }
 
+  /// Default linear retry delay is 300ms.
   Future<ValidatedResult<T>> retryLinear([LinearRetry lr = const LinearRetry()]) {
     return retry(lr);
   }
 
+  /// Default start incremental retry delay is 300ms.
   Future<ValidatedResult<T>> retryIncremental([IncrementalRetry ir = const IncrementalRetry()]) {
     return retry(ir);
   }
@@ -87,10 +91,12 @@ extension RetryStrategyValidatedResult<T> on ValidatedResult<T> Function() {
         );
   }
 
+  /// Default linear retry delay is 300ms.
   Future<ValidatedResult<T>> retryLinear([LinearRetry lr = const LinearRetry()]) {
     return retry(lr);
   }
 
+  /// Default start incremental retry delay is 300ms.
   Future<ValidatedResult<T>> retryIncremental([IncrementalRetry ir = const IncrementalRetry()]) {
     return retry(ir);
   }
@@ -107,11 +113,12 @@ extension RetryStrategyValidatedResultFuture<T> on Future<ValidatedResult<T>> Fu
                                         .then((value) => previousValue.orElseBindFuture(tuple.action))
         );
   }
-
+  /// Default linear retry delay is 300ms.
   Future<ValidatedResult<T>> retryLinear([LinearRetry lr = const LinearRetry()]) {
     return retry(lr);
   }
 
+  /// Default start incremental retry delay is 300ms.
   Future<ValidatedResult<T>> retryIncremental([IncrementalRetry ir = const IncrementalRetry()]) {
     return retry(ir);
   }
@@ -125,10 +132,12 @@ extension RetryStrategyFunctionValidatedResult<T> on ValidatedResult<T Function(
     );
   }
 
+  /// Default linear retry delay is 300ms.
   Future<ValidatedResult<T>> retryLinear([LinearRetry lr = const LinearRetry()]) {
     return retry(lr);
   }
 
+  /// Default start incremental retry delay is 300ms.
   Future<ValidatedResult<T>> retryIncremental([IncrementalRetry ir = const IncrementalRetry()]) {
     return retry(ir);
   }
@@ -142,10 +151,12 @@ extension RetryStrategyFunctionValidatedResultF<T> on ValidatedResult<Future<T> 
     );
   }
 
+  /// Default linear retry delay is 300ms.
   Future<ValidatedResult<T>> retryLinear([LinearRetry lr = const LinearRetry()]) {
     return retry(lr);
   }
 
+  /// Default start incremental retry delay is 300ms.
   Future<ValidatedResult<T>> retryIncremental([IncrementalRetry ir = const IncrementalRetry()]) {
     return retry(ir);
   }
@@ -159,10 +170,12 @@ extension RetryStrategyFutureFunctionValidatedResult<T> on Future<ValidatedResul
     );
   }
 
+  /// Default linear retry delay is 300ms.
   Future<ValidatedResult<T>> retryLinear([LinearRetry lr = const LinearRetry()]) {
     return retry(lr);
   }
 
+  /// Default start incremental retry delay is 300ms.
   Future<ValidatedResult<T>> retryIncremental([IncrementalRetry ir = const IncrementalRetry()]) {
     return retry(ir);
   }
@@ -176,10 +189,12 @@ extension RetryStrategyFutureFunctionValidatedResultFF<T> on Future<ValidatedRes
     );
   }
 
+  /// Default linear retry delay is 300ms.
   Future<ValidatedResult<T>> retryLinear([LinearRetry lr = const LinearRetry()]) {
     return retry(lr);
   }
 
+  /// Default start incremental retry delay is 300ms.
   Future<ValidatedResult<T>> retryIncremental([IncrementalRetry ir = const IncrementalRetry()]) {
     return retry(ir);
   }

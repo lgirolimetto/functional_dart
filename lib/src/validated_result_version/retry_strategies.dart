@@ -16,3 +16,8 @@ class IncrementalRetry extends LinearRetry {
     this.calcIncremental
   });
 }
+
+extension DoubleToDuration on int {
+  Duration get ms => Duration(milliseconds: this);
+  Duration get ss => Duration(seconds: this);
+}
