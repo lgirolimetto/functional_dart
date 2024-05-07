@@ -21,10 +21,10 @@ extension FlatValidatedResultIterable<T> on Iterable<ValidatedResult<T>> {
   ValidatedResult<Iterable<T>> failsIfSomeFailures({String? errorMessage, int? internalErrorCode})
   => flattenFailures()
       .isNotEmpty
-      ? Failure
-      .withError(StateError(errorMessage ?? ''), message: errorMessage ?? '', internalErrorCode: internalErrorCode ?? -1)
-      .toInvalid()
-      : ValidResult(flatten());
+        ? Failure
+            .withError(StateError(errorMessage ?? ''), message: errorMessage ?? '', internalErrorCode: internalErrorCode ?? -1)
+            .toInvalid()
+        : ValidResult(flatten());
 
   /// Extract failures in [Either.left] if at least one failure exists
   /// Extract successes int [Either.right] if there are only successes
@@ -197,21 +197,30 @@ extension FutureIterableValidatedResult<T> on Future<ValidatedResult<Iterable<T>
 }
 
 extension ParallelValidatedFuturesEx<T> on ValidatedResult<Iterable<Future<T> Function()>> {
+
+  /// Run functions in isolates and wait the results, collecting successes and failures
+  /// Use this function if functions to be waited cannot be run (or you don't want them to run) in an isolate
+  /// If functions cannot be run in an Isolate, use [tryWaitAll] instead.
+  ValidatedResult<Future<Iterable<T>>> asParallel() {
+    return map((val) => val.asParallel());
+  }
+
+
   /// Run functions in isolates and wait the results, collecting successes and failures
   /// If functions cannot be run in an Isolate, use [tryWaitAll] instead.
-  Future<ValidatedResult<Iterable<T>>> tryAsParallelFullSuccess() {
+  Future<ValidatedResult<Iterable<T>>> tryAsParallelFullSuccess({String? errorMessage, int? internalErrorCode}) {
     return fold(
             (failure) => failure.toInvalid<Iterable<T>>().toFuture(),
-            (val) => val.tryAsParallel().failsIfSomeFailures()
+            (val) => val.tryAsParallel().failsIfSomeFailures(errorMessage: errorMessage, internalErrorCode: internalErrorCode)
     );
   }
 
   /// Run functions in isolates and wait the results, collecting successes and failures
   /// If functions cannot be run in an Isolate, use [tryWaitAll] instead.
-  Future<ValidatedResult<Iterable<T>>> tryAsParallelPartialSuccess() {
+  Future<ValidatedResult<Iterable<T>>> tryAsParallelPartialSuccess({String? errorMessage, int? internalErrorCode}) {
     return fold(
             (failure) => failure.toInvalid<Iterable<T>>().toFuture(),
-            (val) => val.tryAsParallel().failsIfAllFailures()
+            (val) => val.tryAsParallel().failsIfAllFailures(errorMessage: errorMessage, internalErrorCode: internalErrorCode)
     );
   }
 
@@ -225,35 +234,41 @@ extension ParallelValidatedFuturesEx<T> on ValidatedResult<Iterable<Future<T> Fu
   /// Run functions and wait the results, collecting successes ir failures
   /// Use this function if functions to be waited cannot be run (or you don't want them to run) in an isolate
   /// Otherwise use [tryAsParallel]
-  Future<ValidatedResult<Iterable<T>>> tryWaitAllFullSuccess() {
+  Future<ValidatedResult<Iterable<T>>> tryWaitAllFullSuccess({String? errorMessage, int? internalErrorCode}) {
     return fold(
             (failure) => failure.toInvalid<Iterable<T>>().toFuture(),
-            (val) => val.tryWaitAll().failsIfSomeFailures()
+            (val) => val.tryWaitAll().failsIfSomeFailures(errorMessage: errorMessage, internalErrorCode: internalErrorCode)
     );
   }
 
   /// Run functions and wait the results, collecting successes ir failures
   /// Use this function if functions to be waited cannot be run (or you don't want them to run) in an isolate
   /// Otherwise use [tryAsParallel]
-  Future<ValidatedResult<Iterable<T>>> tryWaitAllPartialSuccess() {
+  Future<ValidatedResult<Iterable<T>>> tryWaitAllPartialSuccess({String? errorMessage, int? internalErrorCode}) {
     return fold(
             (failure) => failure.toInvalid<Iterable<T>>().toFuture(),
-            (val) => val.tryWaitAll().failsIfAllFailures()
+            (val) => val.tryWaitAll().failsIfAllFailures(errorMessage: errorMessage, internalErrorCode: internalErrorCode)
     );
   }
 }
 
 extension FutureParallelValidatedFuturesEx<T> on Future<ValidatedResult<Iterable<Future<T> Function()>>> {
+  /// Run functions and wait the results
+  /// Use this function if functions to be waited cannot be run (or you don't want them to run) in an isolate
+  /// Otherwise use [asParallel]
+  Future<ValidatedResult<Future<Iterable<T>>>> asParallel() {
+    return then((value) => value.asParallel());
+  }
   /// Run functions in isolates and wait the results, collecting successes and failures
   /// If functions cannot be run in an Isolate, use [tryWaitAll] instead.
-  Future<ValidatedResult<Iterable<T>>> tryAsParallelFullSuccess() {
-    return then((value) => value.tryAsParallelFullSuccess());
+  Future<ValidatedResult<Iterable<T>>> tryAsParallelFullSuccess({String? errorMessage, int? internalErrorCode}) {
+    return then((value) => value.tryAsParallelFullSuccess(errorMessage: errorMessage, internalErrorCode: internalErrorCode));
   }
 
   /// Run functions in isolates and wait the results, collecting successes and failures
   /// If functions cannot be run in an Isolate, use [tryWaitAll] instead.
-  Future<ValidatedResult<Iterable<T>>> tryAsParallelPartialSuccess() {
-    return then((value) => value.tryAsParallelPartialSuccess());
+  Future<ValidatedResult<Iterable<T>>> tryAsParallelPartialSuccess({String? errorMessage, int? internalErrorCode}) {
+    return then((value) => value.tryAsParallelPartialSuccess(errorMessage: errorMessage, internalErrorCode: internalErrorCode));
   }
 
   /// Run functions and wait the results
@@ -266,8 +281,8 @@ extension FutureParallelValidatedFuturesEx<T> on Future<ValidatedResult<Iterable
   /// Run functions and wait the results, collecting successes ir failures
   /// Use this function if functions to be waited cannot be run (or you don't want them to run) in an isolate
   /// Otherwise use [tryAsParallel]
-  Future<ValidatedResult<Iterable<T>>> tryWaitAllFullSuccess() {
-    return then((value) => value.tryWaitAllFullSuccess());
+  Future<ValidatedResult<Iterable<T>>> tryWaitAllFullSuccess({String? errorMessage, int? internalErrorCode}) {
+    return then((value) => value.tryWaitAllFullSuccess(errorMessage: errorMessage, internalErrorCode: internalErrorCode));
   }
 
   /// Run functions and wait the results, collecting successes ir failures
@@ -275,5 +290,81 @@ extension FutureParallelValidatedFuturesEx<T> on Future<ValidatedResult<Iterable
   /// Otherwise use [tryAsParallel]
   Future<ValidatedResult<Iterable<T>>> tryWaitAllPartialSuccess() {
     return then((value) => value.tryWaitAllPartialSuccess());
+  }
+}
+
+extension ParallelValidatedIterablesFuturesEx<T> on ValidatedResult<Iterable<Future<ValidatedResult<T>> Function()>> {
+
+  /// Run functions in isolates and wait the results, collecting successes and failures
+  /// Use this function if functions to be waited cannot be run (or you don't want them to run) in an isolate
+  /// If functions cannot be run in an Isolate, use [tryWaitAll] instead.
+  Future<ValidatedResult<Iterable<T>>> asParallelFullSuccess({String? errorMessage, int? internalErrorCode}) {
+    return fold(
+            (failure) => failure.toInvalid<Iterable<T>>().toFuture(),
+            (val) => val.asParallel().failsIfSomeFailures(errorMessage: errorMessage, internalErrorCode: internalErrorCode)
+    );
+  }
+
+  /// Run functions in isolates and wait the results, collecting successes and failures
+  /// Use this function if functions to be waited cannot be run (or you don't want them to run) in an isolate
+  /// If functions cannot be run in an Isolate, use [tryWaitAll] instead.
+  Future<ValidatedResult<Iterable<T>>> asParallelPartialSuccess({String? errorMessage, int? internalErrorCode}) {
+    return fold(
+            (failure) => failure.toInvalid<Iterable<T>>().toFuture(),
+            (val) => val.asParallel().failsIfAllFailures(errorMessage: errorMessage, internalErrorCode: internalErrorCode)
+    );
+  }
+
+
+  /// Run functions and wait the results, collecting successes ir failures
+  /// Use this function if functions to be waited cannot be run (or you don't want them to run) in an isolate
+  /// Otherwise use [tryAsParallel]
+  Future<ValidatedResult<Iterable<T>>> waitAllFullSuccess({String? errorMessage, int? internalErrorCode}) {
+    return fold(
+            (failure) => failure.toInvalid<Iterable<T>>().toFuture(),
+            (val) => val.waitAll().failsIfSomeFailures(errorMessage: errorMessage, internalErrorCode: internalErrorCode)
+    );
+  }
+
+  /// Run functions and wait the results, collecting successes ir failures
+  /// Use this function if functions to be waited cannot be run (or you don't want them to run) in an isolate
+  /// Otherwise use [tryAsParallel]
+  Future<ValidatedResult<Iterable<T>>> waitAllPartialSuccess({String? errorMessage, int? internalErrorCode}) {
+    return fold(
+            (failure) => failure.toInvalid<Iterable<T>>().toFuture(),
+            (val) => val.waitAll().failsIfAllFailures(errorMessage: errorMessage, internalErrorCode: internalErrorCode)
+    );
+  }
+}
+
+extension ParallelFutureValidatedIterablesFuturesEx<T> on Future<ValidatedResult<Iterable<Future<ValidatedResult<T>> Function()>>> {
+
+  /// Run functions in isolates and wait the results, collecting successes and failures
+  /// Use this function if functions to be waited cannot be run (or you don't want them to run) in an isolate
+  /// If functions cannot be run in an Isolate, use [tryWaitAll] instead.
+  Future<ValidatedResult<Iterable<T>>> asParallelFullSuccess({String? errorMessage, int? internalErrorCode}) {
+    return then((value) => value.asParallelFullSuccess(errorMessage: errorMessage, internalErrorCode: internalErrorCode));
+  }
+
+  /// Run functions in isolates and wait the results, collecting successes and failures
+  /// Use this function if functions to be waited cannot be run (or you don't want them to run) in an isolate
+  /// If functions cannot be run in an Isolate, use [tryWaitAll] instead.
+  Future<ValidatedResult<Iterable<T>>> asParallelPartialSuccess({String? errorMessage, int? internalErrorCode}) {
+    return then((value) => value.asParallelPartialSuccess(errorMessage: errorMessage, internalErrorCode: internalErrorCode));
+  }
+
+
+  /// Run functions and wait the results, collecting successes ir failures
+  /// Use this function if functions to be waited cannot be run (or you don't want them to run) in an isolate
+  /// Otherwise use [tryAsParallel]
+  Future<ValidatedResult<Iterable<T>>> waitAllFullSuccess({String? errorMessage, int? internalErrorCode}) {
+    return then((value) => value.waitAllFullSuccess(errorMessage: errorMessage, internalErrorCode: internalErrorCode));
+  }
+
+  /// Run functions and wait the results, collecting successes ir failures
+  /// Use this function if functions to be waited cannot be run (or you don't want them to run) in an isolate
+  /// Otherwise use [tryAsParallel]
+  Future<ValidatedResult<Iterable<T>>> waitAllPartialSuccess({String? errorMessage, int? internalErrorCode}) {
+    return then((value) => value.waitAllPartialSuccess(errorMessage: errorMessage, internalErrorCode: internalErrorCode));
   }
 }

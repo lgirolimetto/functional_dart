@@ -70,9 +70,13 @@ extension ParallelFutures<T> on Iterable<Future<T> Function()> {
 
   /// Run functions in isolates and wait the results, collecting successes and failures
   /// If functions cannot be run in an Isolate, use [tryWaitAll] instead.
-  Future<Iterable<ValidatedResult<T>>> tryAsParallel() {
+  Future<Iterable<ValidatedResult<T>>> tryAsParallel({String? errorMessage, int? internalErrorCode}) {
     return Future.wait(
-        fold(<Future<ValidatedResult<T>>>[], (previousValue, function) => previousValue.toIList().add(Isolate.run(function.try_)))
+        fold(
+          <Future<ValidatedResult<T>>>[],
+          (previousValue, function) => previousValue
+                                        .toIList()
+                                        .add(Isolate.run(() => function.try_(errorMessage: errorMessage, internalErrorCode: internalErrorCode))))
     );
   }
 
@@ -88,9 +92,9 @@ extension ParallelFutures<T> on Iterable<Future<T> Function()> {
   /// Run functions and wait the results, collecting successes ir failures
   /// Use this function if functions to be waited cannot be run (or you don't want them to run) in an isolate
   /// Otherwise use [tryAsParallel]
-  Future<Iterable<ValidatedResult<T>>> tryWaitAll() {
+  Future<Iterable<ValidatedResult<T>>> tryWaitAll({String? errorMessage, int? internalErrorCode}) {
     return Future.wait(
-        fold(<Future<ValidatedResult<T>>>[], (previousValue, function) => previousValue.toIList().add(function.try_()))
+        fold(<Future<ValidatedResult<T>>>[], (previousValue, function) => previousValue.toIList().add(function.try_(errorMessage: errorMessage, internalErrorCode: internalErrorCode)))
     );
   }
 }
@@ -106,9 +110,12 @@ extension Parallel<T> on Iterable<T Function()> {
 
   /// Run functions in isolates and wait the results, collecting successes and failures
   /// If functions cannot be run in an Isolate, use [tryWaitAll] instead.
-  Future<Iterable<ValidatedResult<T>>> tryAsParallel() {
+  Future<Iterable<ValidatedResult<T>>> tryAsParallel({String? errorMessage, int? internalErrorCode}) {
     return Future.wait(
-        fold(<Future<ValidatedResult<T>>>[], (previousValue, function) => previousValue.toIList().add(Isolate.run(function.try_)))
+        fold(
+          <Future<ValidatedResult<T>>>[],
+          (previousValue, function) => previousValue.toIList().add(Isolate.run(() => function.try_(errorMessage: errorMessage, internalErrorCode: internalErrorCode)))
+        )
     );
   }
 }
@@ -138,8 +145,8 @@ extension ParallelFuturesEx<T> on Future<Iterable<Future<T> Function()>> {
 
   /// Run functions in isolates and wait the results, collecting successes and failures
   /// If functions cannot be run in an Isolate, use [tryWaitAll] instead.
-  Future<Iterable<ValidatedResult<T>>> tryAsParallel() {
-    return then((value) => value.tryAsParallel());
+  Future<Iterable<ValidatedResult<T>>> tryAsParallel({String? errorMessage, int? internalErrorCode}) {
+    return then((value) => value.tryAsParallel(errorMessage: errorMessage, internalErrorCode: internalErrorCode));
   }
 
   /// Run functions and wait the results
@@ -152,8 +159,8 @@ extension ParallelFuturesEx<T> on Future<Iterable<Future<T> Function()>> {
   /// Run functions and wait the results, collecting successes ir failures
   /// Use this function if functions to be waited cannot be run (or you don't want them to run) in an isolate
   /// Otherwise use [tryAsParallel]
-  Future<Iterable<ValidatedResult<T>>> tryWaitAll() {
-    return then((value) => value.tryWaitAll());
+  Future<Iterable<ValidatedResult<T>>> tryWaitAll({String? errorMessage, int? internalErrorCode}) {
+    return then((value) => value.tryWaitAll(errorMessage: errorMessage, internalErrorCode: internalErrorCode));
   }
 }
 
@@ -166,8 +173,8 @@ extension FutureParallelFuturesEx<T> on Future<Iterable<T Function()>> {
 
   /// Run functions in isolates and wait the results, collecting successes and failures
   /// If functions cannot be run in an Isolate, use [tryWaitAll] instead.
-  Future<Iterable<ValidatedResult<T>>> tryAsParallel() {
-    return then((value) => value.tryAsParallel());
+  Future<Iterable<ValidatedResult<T>>> tryAsParallel({String? errorMessage, int? internalErrorCode}) {
+    return then((value) => value.tryAsParallel(errorMessage: errorMessage, internalErrorCode: internalErrorCode));
   }
 }
 
