@@ -321,10 +321,7 @@ void main() {
         () => failDouble(),
         internalErrorCode: errorCodeGetDoubleFail
       )
-      .map((d) => (mulBy3.apply(d), d))
-      .orElseRetry((d) => mulBy3(d))
-      .map((d) => (futureMulBy3.apply(d), d))
-      .orElseRetry((d) => mulBy3(d))
+      .map((d) => mulBy3.apply(d).try_().orElseRetry(() => mulBy6(d)))
       .fold(
           (failure) => expect(failure.internalErrorCode, errorCodeGetDoubleFail),
           (val) => fail('Failure expected')
@@ -374,7 +371,7 @@ void main() {
           )
           .tryAsParallel()
           .failsIfAllFailures(internalErrorCode: 5)
-          .map_((s) => '$s -> success')
+          .mapI((s) => '$s -> success')
           .fold(
             (failures) => fail('Failure not expected'),
             (values) => expect(values, ['0 -> success', '2 -> success', '4 -> success', '6 -> success', '8 -> success']),
