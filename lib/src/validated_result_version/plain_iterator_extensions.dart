@@ -12,7 +12,11 @@ extension Futures<T> on Iterable<Future<T>> {
     return map((f) => f.then((v) => fn(v)));
   }
 
-  Future<Iterable<R>> flatMap<R>(Future<R> Function(T) fn) {
+  Future<Iterable<R>> flatMap<R>(R Function(T) fn) {
+    return map_(fn).flatten();
+  }
+
+  Future<Iterable<R>> flatMapFuture<R>(Future<R> Function(T) fn) {
     return mapFuture(fn).flatten();
   }
 
