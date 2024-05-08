@@ -15,6 +15,7 @@ export 'src/try.dart';
 export 'src/unit.dart';
 export 'src/utils.dart';
 
+export 'src/validated_result_version/defaults.dart';
 export 'src/validated_result_version/validated_result.dart';
 export 'src/validated_result_version/validated_iterator_extensions.dart';
 export 'src/validated_result_version/failure.dart';

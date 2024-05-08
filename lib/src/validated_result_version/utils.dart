@@ -1,17 +1,9 @@
 import 'package:basic_functional_dart/basic_functional_dart.dart';
+import 'package:basic_functional_dart/src/validated_result_version/internal_extensions.dart';
 
 extension DurationExts on Duration {
   Future<void> delay() {
     return Future.delayed(this);
-  }
-}
-
-extension _IntToListOfInt on int {
-  List<int> toList() => [for (var i = 1; i <= this; i++) i];
-
-  Iterable<({int nTry, T Function() action})> getActionIndexed<T>(T Function() action) {
-    return toList()
-        .map((i) => (nTry: i, action: action));
   }
 }
 

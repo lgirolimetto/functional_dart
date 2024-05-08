@@ -4,30 +4,37 @@ import 'package:basic_functional_dart/basic_functional_dart.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 
 extension Futures<T> on Iterable<Future<T>> {
+  /// Same as [map], only for Iterable<Future>
   Iterable<Future<R>> map_<R>(R Function(T) fn) {
     return map((f) => f.then((v) => fn(v)));
   }
 
+  /// Use when mapping function returns a [Future]. Otherwise, use [map_]
   Iterable<Future<R>> mapFuture<R>(Future<R> Function(T) fn) {
     return map((f) => f.then((v) => fn(v)));
   }
 
+  /// Use [flatMap] to map your Iterables and purge Future outside Iterable
   Future<Iterable<R>> flatMap<R>(R Function(T) fn) {
     return map_(fn).flatten();
   }
 
+  /// Same as [flatMap] for a mapping function that returns a Future
   Future<Iterable<R>> flatMapFuture<R>(Future<R> Function(T) fn) {
     return mapFuture(fn).flatten();
   }
 
+  /// Purge Future outside Iterable
   Future<Iterable<T>> flatten() {
     return Future.wait(this);
   }
 
+  /// Same as [fold], but for Iterable<Future>
   Future<R> fold_<R>(R initialValue, R Function(R previousValue, T element) combine) {
     return fold(Future.value(initialValue), (r, e) => e.then((v) => r.then((value) => combine(value, v))));
   }
 
+  /// Same as [fold_], for a combine function that returns a [Future] value
   Future<R> foldFuture<R>(R initialValue, Future<R> Function(R previousValue, T element) combine) {
     return fold(Future.value(initialValue), (r, e) => e.then((v) => r.then((value) => combine(value, v))));
   }

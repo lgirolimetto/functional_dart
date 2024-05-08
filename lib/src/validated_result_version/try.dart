@@ -1,23 +1,25 @@
 import 'package:basic_functional_dart/basic_functional_dart.dart';
 
+import 'defaults.dart';
+
 ValidatedResult<T> _catchBlock<T>(Object err, {String? errorMessage, int? internalErrorCode}) {
   if (err is Exception) {
     return Failure
-            .withException(err, message: errorMessage ?? '', internalErrorCode: internalErrorCode ?? -1)
+            .withException(err, errorMessage: errorMessage ?? defaultErrorMessage, internalErrorCode: internalErrorCode ?? defaultInternalErrorCode)
             .toInvalid();
   } else if (err is Error) {
     return Failure
-            .withError(err, message: errorMessage ?? '', internalErrorCode: internalErrorCode ?? -1)
+            .withError(err, errorMessage: errorMessage ?? defaultErrorMessage, internalErrorCode: internalErrorCode ?? defaultInternalErrorCode)
             .toInvalid();
   }
   else if(err is String)
   {
     return Failure
-            .withError(ArgumentError(err), message: errorMessage ?? '', internalErrorCode: internalErrorCode ?? -1)
+            .withError(ArgumentError(err), errorMessage: errorMessage ?? defaultErrorMessage, internalErrorCode: internalErrorCode ?? defaultInternalErrorCode)
             .toInvalid();
   }
 
-  return Failure.withError(Error(), message: errorMessage ?? 'Unknown error').toInvalid();
+  return Failure.withError(Error(), errorMessage: errorMessage ?? 'Unknown error').toInvalid();
 }
 
 ValidatedResult<T> try_<T>(T Function () tryBlock, {String? errorMessage, int? internalErrorCode}) {

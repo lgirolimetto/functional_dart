@@ -1,14 +1,15 @@
 import 'package:basic_functional_dart/basic_functional_dart.dart';
+import 'package:basic_functional_dart/src/validated_result_version/defaults.dart';
 
 Validation<T> _catchBlock<T>(Object err, {String? errorMessage, int? internalErrorCode}) {
   if (err is Exception) {
-    return Invalid<T>(Fail.withException(err, message: errorMessage ?? '', internalErrorCode: internalErrorCode ?? -1));
+    return Invalid<T>(Fail.withException(err, message: errorMessage ?? defaultErrorMessage, internalErrorCode: internalErrorCode ?? defaultInternalErrorCode));
   } else if (err is Error) {
-    return Invalid<T>(Fail.withError(err, message: errorMessage ?? '', internalErrorCode: internalErrorCode ?? -1));
+    return Invalid<T>(Fail.withError(err, message: errorMessage ?? defaultErrorMessage, internalErrorCode: internalErrorCode ?? defaultInternalErrorCode));
   }
   else if(err is String)
   {
-    return Invalid<T>(Fail.withError(ArgumentError(err), message: errorMessage ?? '', internalErrorCode: internalErrorCode ?? -1));
+    return Invalid<T>(Fail.withError(ArgumentError(err), message: errorMessage ?? defaultErrorMessage, internalErrorCode: internalErrorCode ?? defaultInternalErrorCode));
   }
 
   return Fail.withError(Error(), message: errorMessage ?? 'Unknown error').toInvalid<T>();

@@ -1,5 +1,7 @@
 import 'package:basic_functional_dart/basic_functional_dart.dart';
 
+import 'defaults.dart';
+
 
 extension FlatValidatedResultIterable<T> on Iterable<ValidatedResult<T>> {
   /// Wipe out failures and keep only successes
@@ -14,7 +16,7 @@ extension FlatValidatedResultIterable<T> on Iterable<ValidatedResult<T>> {
   => flatten()
       .isEmpty
       ? Failure
-      .withError(StateError(errorMessage ?? ''), message: errorMessage ?? '', internalErrorCode: internalErrorCode ?? -1)
+      .withError(StateError(errorMessage ?? defaultErrorMessage), errorMessage: errorMessage ?? defaultErrorMessage, internalErrorCode: internalErrorCode ?? defaultInternalErrorCode)
       .toInvalid()
       : ValidResult(flatten());
 
@@ -22,7 +24,7 @@ extension FlatValidatedResultIterable<T> on Iterable<ValidatedResult<T>> {
   => flattenFailures()
       .isNotEmpty
         ? Failure
-            .withError(StateError(errorMessage ?? ''), message: errorMessage ?? '', internalErrorCode: internalErrorCode ?? -1)
+            .withError(StateError(errorMessage ?? defaultErrorMessage), errorMessage: errorMessage ?? defaultErrorMessage, internalErrorCode: internalErrorCode ?? defaultInternalErrorCode)
             .toInvalid()
         : ValidResult(flatten());
 

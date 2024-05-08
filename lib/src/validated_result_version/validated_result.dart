@@ -83,7 +83,26 @@ class ValidatedResult<T> {
         (failure) => fallback.retry(rs ?? const LinearRetry()),
         (val) => this.toFuture()
       );
-  /////////////////
+
+  /// Default linear retry delay is 300ms.
+  Future<ValidatedResult<T>> orElseRetryLinear(T Function() f, {LinearRetry lr = const LinearRetry(), String? errorMessage, int? internalErrorCode}) {
+    return orElseRetry(f, rs: lr, errorMessage: errorMessage, internalErrorCode: internalErrorCode);
+  }
+
+  /// Default start incremental retry delay is 300ms.
+  Future<ValidatedResult<T>> orElseRetryIncremental(T Function() f, {IncrementalRetry ir = const IncrementalRetry(), String? errorMessage, int? internalErrorCode}) {
+    return orElseRetry(f, rs: ir, errorMessage: errorMessage, internalErrorCode: internalErrorCode);
+  }
+
+  /// Default linear retry delay is 300ms.
+  Future<ValidatedResult<T>> orElseRetryFutureLinear(Future<T> Function() f, {LinearRetry lr = const LinearRetry(), String? errorMessage, int? internalErrorCode}) {
+    return orElseRetryFuture(f, rs: lr, errorMessage: errorMessage, internalErrorCode: internalErrorCode);
+  }
+
+  /// Default start incremental retry delay is 300ms.
+  Future<ValidatedResult<T>> orElseRetryFutureIncremental(Future<T> Function() f, {IncrementalRetry ir = const IncrementalRetry(), String? errorMessage, int? internalErrorCode}) {
+    return orElseRetryFuture(f, rs: ir, errorMessage: errorMessage, internalErrorCode: internalErrorCode);
+  }
 
   /// Use [map] to chain a function that do not return a Future and cannot fail
   ValidatedResult<R> map<R>(R Function(T val) f) =>
@@ -115,6 +134,34 @@ class ValidatedResult<T> {
   /// Use [tryFuture] to chain a function that return a Future can fail
   Future<ValidatedResult<R>> tryFuture<R>(Future<R> Function(T val) f, {String? errorMessage, int? internalErrorCode}) =>
       fold((fails) => fails.toInvalid<R>().toFuture(), (v) => (() => f(v)).try_(errorMessage: errorMessage, internalErrorCode: internalErrorCode));
+
+  Future<ValidatedResult<R>> retry<R>(R Function(T) f, RetryStrategy rs, {String? errorMessage, int? internalErrorCode}) {
+    return bindFuture((val) => f.apply(val).retry(rs, errorMessage: errorMessage, internalErrorCode: internalErrorCode));
+  }
+
+  /// Default linear retry delay is 300ms.
+  Future<ValidatedResult<R>> retryLinear<R>(R Function(T) f, {LinearRetry lr = const LinearRetry(), String? errorMessage, int? internalErrorCode}) {
+    return bindFuture((val) => f.apply(val).retry(lr, errorMessage: errorMessage, internalErrorCode: internalErrorCode));
+  }
+
+  /// Default start incremental retry delay is 300ms.
+  Future<ValidatedResult<R>> retryIncremental<R>(R Function(T) f, {IncrementalRetry ir = const IncrementalRetry(), String? errorMessage, int? internalErrorCode}) {
+    return bindFuture((val) => f.apply(val).retry(ir, errorMessage: errorMessage, internalErrorCode: internalErrorCode));
+  }
+
+  Future<ValidatedResult<R>> retryFuture<R>(Future<R> Function(T) f, RetryStrategy rs, {String? errorMessage, int? internalErrorCode}) {
+    return bindFuture((val) => f.apply(val).retry(rs, errorMessage: errorMessage, internalErrorCode: internalErrorCode));
+  }
+
+  /// Default linear retry delay is 300ms.
+  Future<ValidatedResult<R>> retryFutureLinear<R>(Future<R> Function(T) f, {LinearRetry lr = const LinearRetry(), String? errorMessage, int? internalErrorCode}) {
+    return bindFuture((val) => f.apply(val).retry(lr, errorMessage: errorMessage, internalErrorCode: internalErrorCode));
+  }
+
+  /// Default start incremental retry delay is 300ms.
+  Future<ValidatedResult<R>> retryFutureIncremental<R>(Future<R> Function(T) f, {IncrementalRetry ir = const IncrementalRetry(), String? errorMessage, int? internalErrorCode}) {
+    return bindFuture((val) => f.apply(val).retry(ir, errorMessage: errorMessage, internalErrorCode: internalErrorCode));
+  }
 
   Future<ValidatedResult<T>> toFuture() => Future(() => this);
 
@@ -163,6 +210,35 @@ extension FutureValidatedResult<T> on Future<ValidatedResult<T>> {
   Future<ValidatedResult<T>> orElseTryFuture(Future<T> Function() fallback, {String? errorMessage, int? internalErrorCode}) =>
       foldFuture((invalid) => fallback.try_(errorMessage: errorMessage, internalErrorCode: internalErrorCode), (valid) => Future.value(ValidResult(valid)));
 
+  /// Use [orElseRetry] to retry a fallback that has as a parameter the last valid input when the previous result is a [Failure]
+  Future<ValidatedResult<T>> orElseRetry(T Function() fallback, {RetryStrategy? rs, String? errorMessage, int? internalErrorCode}) =>
+      then((value) => value.orElseRetry(fallback, rs: rs, errorMessage: errorMessage, internalErrorCode: internalErrorCode));
+
+  /// Use [orElseRetryFuture] to retry a fallback that has as a parameter the last valid input when the previous result is a [Failure]
+  /// and the fallback returns a [Future]
+  Future<ValidatedResult<T>> orElseRetryFuture(Future<T> Function() fallback, {RetryStrategy? rs, String? errorMessage, int? internalErrorCode}) =>
+    then((value) => value.orElseRetryFuture(fallback, rs: rs, errorMessage: errorMessage, internalErrorCode: internalErrorCode));
+
+  /// Default linear retry delay is 300ms.
+  Future<ValidatedResult<T>> orElseRetryLinear(T Function() f, {LinearRetry lr = const LinearRetry(), String? errorMessage, int? internalErrorCode}) {
+    return orElseRetry(f, rs: lr, errorMessage: errorMessage, internalErrorCode: internalErrorCode);
+  }
+
+  /// Default start incremental retry delay is 300ms.
+  Future<ValidatedResult<T>> orElseRetryIncremental(T Function() f, {IncrementalRetry ir = const IncrementalRetry(), String? errorMessage, int? internalErrorCode}) {
+    return orElseRetry(f, rs: ir, errorMessage: errorMessage, internalErrorCode: internalErrorCode);
+  }
+
+  /// Default linear retry delay is 300ms.
+  Future<ValidatedResult<T>> orElseRetryFutureLinear(Future<T> Function() f, {LinearRetry lr = const LinearRetry(), String? errorMessage, int? internalErrorCode}) {
+    return orElseRetryFuture(f, rs: lr, errorMessage: errorMessage, internalErrorCode: internalErrorCode);
+  }
+
+  /// Default start incremental retry delay is 300ms.
+  Future<ValidatedResult<T>> orElseRetryFutureIncremental(Future<T> Function() f, {IncrementalRetry ir = const IncrementalRetry(), String? errorMessage, int? internalErrorCode}) {
+    return orElseRetryFuture(f, rs: ir, errorMessage: errorMessage, internalErrorCode: internalErrorCode);
+  }
+
   /// Use [map] to chain a function that do not return a Future and cannot fail
   Future<ValidatedResult<R>> map<R>(R Function(T t) f) =>
       fold((err) => InvalidResult<R>(err), (v) => ValidResult(f(v)));
@@ -196,7 +272,7 @@ extension FutureValidatedResult<T> on Future<ValidatedResult<T>> {
       foldFuture((fail) => InvalidResult<R>(fail).toFuture(), (v) => (() => f(v)).try_(errorMessage: errorMessage, internalErrorCode: internalErrorCode));
 }
 
-extension OrElseFunction<T, R> on T Function() {
+extension OrElseFunction<T> on T Function() {
   /// Use [orElseTry] to use a fallback that has as a parameter the last valid input when the previous result is a [Failure]
   ValidatedResult<T> orElseTry(T Function() fallback, {String? errorMessage, int? internalErrorCode}) =>
       this.try_(errorMessage: errorMessage, internalErrorCode: internalErrorCode)
@@ -221,7 +297,7 @@ extension OrElseFunction<T, R> on T Function() {
           .orElseRetryFuture(fallback, rs: rs ?? const LinearRetry(), errorMessage: errorMessage, internalErrorCode: internalErrorCode);
 }
 
-extension OrElseFutureFunction<T, R> on Future<T> Function() {
+extension OrElseFutureFunction<T> on Future<T> Function() {
   /// Use [orElseTry] to use a fallback that has as a parameter the last valid input when the previous result is a [Failure]
   Future<ValidatedResult<T>> orElseTry(T Function() fallback, {String? errorMessage, int? internalErrorCode}) =>
       this.try_(errorMessage: errorMessage, internalErrorCode: internalErrorCode)
@@ -245,4 +321,26 @@ extension OrElseFutureFunction<T, R> on Future<T> Function() {
   Future<ValidatedResult<T>> orElseRetryFuture(Future<T> Function() fallback, {RetryStrategy? rs, String? errorMessage, int? internalErrorCode}) =>
       this.try_(errorMessage: errorMessage, internalErrorCode: internalErrorCode)
           .orElseBindFuture(() => fallback.retry(rs ?? const LinearRetry(), errorMessage: errorMessage, internalErrorCode: internalErrorCode));
+}
+
+extension OrElseFutureValidatedFunction<T> on Future<ValidatedResult<T>> Function() {
+  /// Use [orElseTry] to use a fallback that has as a parameter the last valid input when the previous result is a [Failure]
+  Future<ValidatedResult<T>> orElseTry(T Function() fallback, {String? errorMessage, int? internalErrorCode}) =>
+      this().orElseTry(fallback, errorMessage: errorMessage, internalErrorCode: internalErrorCode);
+
+
+  /// Use [orElseTryFuture] to use a fallback that has as a parameter the last valid input when the previous result is a [Failure]
+  /// and the fallback returns a [Future]
+  Future<ValidatedResult<T>> orElseTryFuture(Future<T> Function() fallback, {String? errorMessage, int? internalErrorCode}) =>
+      this().orElseTryFuture(fallback, errorMessage: errorMessage, internalErrorCode: internalErrorCode);
+
+  /// Use [orElseRetry] to retry a fallback that has as a parameter the last valid input when the previous result is a [Failure]
+  Future<ValidatedResult<T>> orElseRetry(T Function() fallback, {RetryStrategy? rs, String? errorMessage, int? internalErrorCode}) =>
+      this().orElseBindFuture(() => fallback.retry(rs ?? const LinearRetry(), errorMessage: errorMessage, internalErrorCode: internalErrorCode));
+
+
+  /// Use [orElseRetryFuture] to retry a fallback that has as a parameter the last valid input when the previous result is a [Failure]
+  /// and the fallback returns a [Future]
+  Future<ValidatedResult<T>> orElseRetryFuture(Future<T> Function() fallback, {RetryStrategy? rs, String? errorMessage, int? internalErrorCode}) =>
+      this().orElseBindFuture(() => fallback.retry(rs ?? const LinearRetry(), errorMessage: errorMessage, internalErrorCode: internalErrorCode));
 }
