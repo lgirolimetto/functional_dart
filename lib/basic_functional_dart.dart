@@ -23,3 +23,4 @@ export 'src/validated_result_version/try.dart';
 export 'src/validated_result_version/retry_strategies.dart';
 export 'src/validated_result_version/utils.dart';
 export 'src/validated_result_version/plain_iterator_extensions.dart';
+export 'src/validated_result_version/metadata.dart';

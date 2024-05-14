@@ -1,7 +1,5 @@
 import 'package:basic_functional_dart/basic_functional_dart.dart';
 
-import 'defaults.dart';
-
 ValidatedResult<T> _catchBlock<T>(Object err, {String? errorMessage, int? internalErrorCode}) {
   if (err is Exception) {
     return Failure

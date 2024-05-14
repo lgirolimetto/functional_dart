@@ -35,6 +35,11 @@ void main() {
       population = [Person(eta: 40), Person(), Person(eta: 10)];
     });
 
+    test('Pure metadata', () {
+      @pure
+      int i;
+    });
+
     test('First Test', () {
       expect(option.isSome, isTrue);
 

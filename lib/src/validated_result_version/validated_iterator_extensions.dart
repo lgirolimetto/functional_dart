@@ -1,8 +1,5 @@
 import 'package:basic_functional_dart/basic_functional_dart.dart';
 
-import 'defaults.dart';
-
-
 extension FlatValidatedResultIterable<T> on Iterable<ValidatedResult<T>> {
   /// Wipe out failures and keep only successes
   /// To get failures use [flattenFailures]
@@ -139,6 +136,7 @@ extension IterableValidatedResult<T> on ValidatedResult<Iterable<T>> {
         });
   }
 
+
   ValidatedResult<Iterable<T>> whereType<T>() {
     return map((val) => val.whereType<T>());
   }
@@ -167,9 +165,36 @@ extension FutureIterableValidatedResult<T> on Future<ValidatedResult<Iterable<T>
   /// Returns a new lazy [Iterable] with elements that are created by
   /// calling `toElement` on each element of this `Iterable` in
   /// iteration order.
+  /// It is the equivalent of [Iterable.map]
+  ///
+  /// If you want to map another function that handle all the array at once
+  /// use [ValidatedResult.map] instead
+  Future<ValidatedResult<Iterable<R>>> mapIFuture<R>(Future<R> toElement(T e)) {
+    return then((value) => value.fold(
+                              (failure) => failure.toInvalid(),
+                              (val) => val.map((e) => toElement(e)).flatten().then((value) => ValidResult(value))));
+  }
+
+  /// The current elements of this iterable modified by [toElement].
+  ///
+  /// Returns a new lazy [Iterable] with elements that are created by
+  /// calling `toElement` on each element of this `Iterable` in
+  /// iteration order.
   /// Like [mapI] with error handling
   Future<ValidatedResult<Iterable<R>>> tryMapI<R>(R toElement(T e), {String? errorMessage, int? internalErrorCode}) {
     return then((value) => value.tryMapI(toElement));
+  }
+
+  /// The current elements of this iterable modified by [toElement].
+  ///
+  /// Returns a new lazy [Iterable] with elements that are created by
+  /// calling `toElement` on each element of this `Iterable` in
+  /// iteration order.
+  /// Like [mapI] with error handling
+  Future<ValidatedResult<Iterable<R>>> tryMapIFuture<R>(Future<R> toElement(T e), {String? errorMessage, int? internalErrorCode}) {
+    return then((value) => value.fold(
+                                  (failure) => failure.toInvalid(),
+                                  (val) => tryFuture(() => val.map((e) => toElement(e)).flatten())));
   }
 
   /// Reduces a collection to a single value by iteratively combining each

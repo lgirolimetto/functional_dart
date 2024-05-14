@@ -9,7 +9,7 @@ class LinearRetry extends RetryStrategy {
 }
 
 class IncrementalRetry extends LinearRetry {
-  final Duration Function(Duration initialDelay, int nTry)? calcIncremental;
+  final Duration Function(Duration initialDelay, int currentTry)? calcIncremental;
   const IncrementalRetry({
     super.nRetries,
     super.delayDuration,
