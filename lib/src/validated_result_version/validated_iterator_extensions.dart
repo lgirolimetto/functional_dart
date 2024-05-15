@@ -25,8 +25,8 @@ extension FlatValidatedResultIterable<T> on Iterable<ValidatedResult<T>> {
             .toInvalid()
         : ValidResult(flatten());
 
-  /// Extract failures in [Either.left] if at least one failure exists
-  /// Extract successes int [Either.right] if there are only successes
+  /// Extract failures in [Either._left] if at least one failure exists
+  /// Extract successes int [Either._right] if there are only successes
   Either<Iterable<Failure>, Iterable<T>> toEither() {
     final iterable = where((o) => !o.isValid);
     if(iterable.isEmpty) {
@@ -71,8 +71,8 @@ extension FlatFutureValidatedResultIterable<T> on Future<Iterable<ValidatedResul
   /// To get successes use [flattenValidated]
   Future<ValidatedResult<Iterable<Failure>>> flattenValidatedFailures() => then((fv) => ValidResult(fv.flattenFailures()));
 
-  /// Extract failures in [Either.left] if at least one failure exists
-  /// Extract successes int [Either.right] if there are only successes
+  /// Extract failures in [Either._left] if at least one failure exists
+  /// Extract successes int [Either._right] if there are only successes
   Future<Either<Iterable<Failure>, Iterable<T>>> toEither() => then((value) => value.toEither());
 
 

@@ -1,18 +1,18 @@
 import 'package:basic_functional_dart/basic_functional_dart.dart';
 
-ValidatedResult<T> ValidResult<T>(T value) => ValidatedResult.valid(value);
-ValidatedResult<T> InvalidResult<T>(Failure failure) => ValidatedResult.invalid(failure);
+ValidatedResult<T> ValidResult<T>(T value) => ValidatedResult._valid(value);
+ValidatedResult<T> InvalidResult<T>(Failure failure) => ValidatedResult._invalid(failure);
 
 class ValidatedResult<T> {
   final Failure? _failure;
   final T? _value;
   bool get isValid => _failure == null;
 
-  const ValidatedResult.valid(T value)
+  const ValidatedResult._valid(T value)
       : _value = value,
         _failure = null;
 
-  const ValidatedResult.invalid(Failure failure)
+  const ValidatedResult._invalid(Failure failure)
       : _failure = failure,
         _value = null;
 

@@ -1,7 +1,5 @@
 import 'package:basic_functional_dart/basic_functional_dart.dart';
 
-import 'defaults.dart';
-
 /// Classe di errore usata nella `Validation` e può contenere un `Error` o un'`Exception`
 /// Molto simile come concetto a `Either`
 class Failure {

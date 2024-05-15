@@ -1,29 +1,29 @@
-Either<L, R> Left<L, R>(L left) => Either.left(left);
-Either<L, R> Right<L, R>(R right) => Either.right(right);
+Either<L, R> Left<L, R>(L left) => Either._left(left);
+Either<L, R> Right<L, R>(R right) => Either._right(right);
 
 /// Classe che permette di avere un risultato di un tipo oppure di un altro.
 /// Un left solitamente va messo un risultato di errore
 class Either<L, R> {
-  final L? _left;
-  final R? _right;
+  final L? _l;
+  final R? _r;
 
-  bool get isLeft => _left != null;
+  bool get isLeft => _l != null;
   bool get isRight => !isLeft;
 
   /// Inizializza l'oggetto con il tipo L
-  Either.left(L left)
-      : _left = left,
-        _right = null;
+  Either._left(L left)
+      : _l = left,
+        _r = null;
 
   /// Inizializza l'oggetto con il tipo R
-  Either.right(R right)
-      : _right = right,
-        _left = null;
+  Either._right(R right)
+      : _r = right,
+        _l = null;
 
   /// Estrae il tipo contenuto da `Either` (L o R) e chiama la funzione corrispondente
   /// che dovranno essere passate come closures
   TR fold<TR>(TR Function(L l) leftF, TR Function(R r) rightF) =>
-    isLeft ? leftF(_left!) : rightF(_right!);
+    isLeft ? leftF(_l!) : rightF(_r!);
       
   /// Concatena il risultato Either con un'altra funzione che non ritorna un Either.
   /// Se Either contiene L, allora la funzione non viene chiamata (L è considerato in stato di errore)
@@ -43,4 +43,18 @@ class Either<L, R> {
   /// e ritorna semplicemente l'Either che contiene L
   Either<L, RR> bind<RR>(Either<L, RR> Function(R r) f) =>
       fold((l) => Left(l), (right) => f(right));
+
+  /// Extract all left results
+  Iterable<L> asLeft() sync* {
+    if (isLeft) {
+      yield _l!;
+    }
+  }
+
+  /// Extract all right results
+  Iterable<R> asRight() sync* {
+    if (isRight) {
+      yield _r!;
+    }
+  }
 }
