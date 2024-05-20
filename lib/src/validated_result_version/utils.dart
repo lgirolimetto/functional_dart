@@ -26,7 +26,7 @@ extension RetryDelayCalc on RetryStrategy {
 
 
 extension RetryStrategyExt<T> on T Function() {
-  Future<ValidatedResult<T>> retry(RetryStrategy rs, {String? errorMessage, int? internalErrorCode}) {
+  Future<ValidatedResult<T>> retry({RetryStrategy rs = const LinearRetry(), String? errorMessage, int? internalErrorCode}) {
     return rs.nRetries
         .getActionIndexed(this)
         .fold(
@@ -36,20 +36,10 @@ extension RetryStrategyExt<T> on T Function() {
                                     .then((_) => previousValue.orElseTry(tuple.action, errorMessage: errorMessage, internalErrorCode: internalErrorCode))
         );
   }
-
-  /// Default linear retry delay is 300ms.
-  Future<ValidatedResult<T>> retryLinear({LinearRetry lr = const LinearRetry(), String? errorMessage, int? internalErrorCode}) {
-    return retry(lr, errorMessage: errorMessage, internalErrorCode: internalErrorCode);
-  }
-
-  /// Default start incremental retry delay is 300ms.
-  Future<ValidatedResult<T>> retryIncremental({IncrementalRetry ir = const IncrementalRetry(), String? errorMessage, int? internalErrorCode}) {
-    return retry(ir, errorMessage: errorMessage, internalErrorCode: internalErrorCode);
-  }
 }
 
 extension RetryStrategyOnFuture<T> on Future<T> Function() {
-  Future<ValidatedResult<T>> retry(RetryStrategy rs, {String? errorMessage, int? internalErrorCode}) {
+  Future<ValidatedResult<T>> retry({RetryStrategy rs = const LinearRetry(), String? errorMessage, int? internalErrorCode}) {
     return rs.nRetries
         .getActionIndexed(this)
         .fold(
@@ -59,20 +49,10 @@ extension RetryStrategyOnFuture<T> on Future<T> Function() {
                                       .then((_) => previousValue.orElseTryFuture(tuple.action, errorMessage: errorMessage, internalErrorCode: internalErrorCode))
         );
   }
-
-  /// Default linear retry delay is 300ms.
-  Future<ValidatedResult<T>> retryLinear({LinearRetry lr = const LinearRetry(), String? errorMessage, int? internalErrorCode}) {
-    return retry(lr, errorMessage: errorMessage, internalErrorCode: internalErrorCode);
-  }
-
-  /// Default start incremental retry delay is 300ms.
-  Future<ValidatedResult<T>> retryIncremental({IncrementalRetry ir = const IncrementalRetry(), String? errorMessage, int? internalErrorCode}) {
-    return retry(ir, errorMessage: errorMessage, internalErrorCode: internalErrorCode);
-  }
 }
 
 extension RetryStrategyValidatedResult<T> on ValidatedResult<T> Function() {
-  Future<ValidatedResult<T>> retry(RetryStrategy rs, {String? errorMessage, int? internalErrorCode}) {
+  Future<ValidatedResult<T>> retry({RetryStrategy rs = const LinearRetry()}) {
     return rs.nRetries
         .getActionIndexed(this)
         .fold(
@@ -82,20 +62,10 @@ extension RetryStrategyValidatedResult<T> on ValidatedResult<T> Function() {
                                       .then((_) => previousValue.orElseBind(tuple.action))
         );
   }
-
-  /// Default linear retry delay is 300ms.
-  Future<ValidatedResult<T>> retryLinear([LinearRetry lr = const LinearRetry()]) {
-    return retry(lr);
-  }
-
-  /// Default start incremental retry delay is 300ms.
-  Future<ValidatedResult<T>> retryIncremental([IncrementalRetry ir = const IncrementalRetry()]) {
-    return retry(ir);
-  }
 }
 
 extension RetryStrategyValidatedResultFuture<T> on Future<ValidatedResult<T>> Function() {
-  Future<ValidatedResult<T>> retry(RetryStrategy rs) {
+  Future<ValidatedResult<T>> retry({RetryStrategy rs = const LinearRetry()}) {
     return rs.nRetries
         .getActionIndexed(this)
         .fold(
@@ -105,89 +75,40 @@ extension RetryStrategyValidatedResultFuture<T> on Future<ValidatedResult<T>> Fu
                                         .then((value) => previousValue.orElseBindFuture(tuple.action))
         );
   }
-  /// Default linear retry delay is 300ms.
-  Future<ValidatedResult<T>> retryLinear([LinearRetry lr = const LinearRetry()]) {
-    return retry(lr);
-  }
-
-  /// Default start incremental retry delay is 300ms.
-  Future<ValidatedResult<T>> retryIncremental([IncrementalRetry ir = const IncrementalRetry()]) {
-    return retry(ir);
-  }
 }
 
 extension RetryStrategyFunctionValidatedResult<T> on ValidatedResult<T Function()> {
-  Future<ValidatedResult<T>> retry(RetryStrategy rs) {
+  Future<ValidatedResult<T>> retry({RetryStrategy rs = const LinearRetry(), String? errorMessage, int? internalErrorCode}) {
     return fold(
       (failure) => failure.toInvalid<T>().toFuture(),
-      (val) => val.retry(rs)
+      (val) => val.retry(rs: rs, errorMessage: errorMessage, internalErrorCode: internalErrorCode)
     );
-  }
-
-  /// Default linear retry delay is 300ms.
-  Future<ValidatedResult<T>> retryLinear([LinearRetry lr = const LinearRetry()]) {
-    return retry(lr);
-  }
-
-  /// Default start incremental retry delay is 300ms.
-  Future<ValidatedResult<T>> retryIncremental([IncrementalRetry ir = const IncrementalRetry()]) {
-    return retry(ir);
   }
 }
 
 extension RetryStrategyFunctionValidatedResultF<T> on ValidatedResult<Future<T> Function()> {
-  Future<ValidatedResult<T>> retry(RetryStrategy rs) {
+  Future<ValidatedResult<T>> retry({RetryStrategy rs = const LinearRetry(), String? errorMessage, int? internalErrorCode}) {
     return fold(
             (failure) => failure.toInvalid<T>().toFuture(),
-            (val) => val.retry(rs)
+            (val) => val.retry(rs: rs, errorMessage: errorMessage, internalErrorCode: internalErrorCode)
     );
-  }
-
-  /// Default linear retry delay is 300ms.
-  Future<ValidatedResult<T>> retryLinear([LinearRetry lr = const LinearRetry()]) {
-    return retry(lr);
-  }
-
-  /// Default start incremental retry delay is 300ms.
-  Future<ValidatedResult<T>> retryIncremental([IncrementalRetry ir = const IncrementalRetry()]) {
-    return retry(ir);
   }
 }
 
 extension RetryStrategyFutureFunctionValidatedResult<T> on Future<ValidatedResult<T Function()>> {
-  Future<ValidatedResult<T>> retry(RetryStrategy rs) {
+  Future<ValidatedResult<T>> retry({RetryStrategy rs = const LinearRetry()}) {
     return foldFuture(
             (failure) => failure.toInvalid<T>().toFuture(),
-            (val) => val.retry(rs)
+            (val) => val.retry(rs: rs)
     );
-  }
-
-  /// Default linear retry delay is 300ms.
-  Future<ValidatedResult<T>> retryLinear([LinearRetry lr = const LinearRetry()]) {
-    return retry(lr);
-  }
-
-  /// Default start incremental retry delay is 300ms.
-  Future<ValidatedResult<T>> retryIncremental([IncrementalRetry ir = const IncrementalRetry()]) {
-    return retry(ir);
   }
 }
 
 extension RetryStrategyFutureFunctionValidatedResultFF<T> on Future<ValidatedResult<Future<T> Function()>> {
-  Future<ValidatedResult<T>> retry(RetryStrategy rs) {
+  Future<ValidatedResult<T>> retry({RetryStrategy rs = const LinearRetry(), String? errorMessage, int? internalErrorCode}) {
     return foldFuture(
             (failure) => failure.toInvalid<T>().toFuture(),
-            (val) => val.retry(rs)
+            (val) => val.retry(rs: rs, errorMessage: errorMessage, internalErrorCode: internalErrorCode)
     );
-  }
-
-  /// Default linear retry delay is 300ms.
-  Future<ValidatedResult<T>> retryLinear([LinearRetry lr = const LinearRetry()]) {
-    return retry(lr);
-  }
-
-  /// Default start incremental retry delay is 300ms.
-  Future<ValidatedResult<T>> retryIncremental([IncrementalRetry ir = const IncrementalRetry()]) {
-    return retry(ir);
   }
 }

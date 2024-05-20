@@ -20,6 +20,7 @@ ValidatedResult<T> _catchBlock<T>(Object err, {String? errorMessage, int? intern
   return Failure.withError(Error(), errorMessage: errorMessage ?? 'Unknown error').toInvalid();
 }
 
+/// Execute [tryBlock] and lift the result in a ValidatedResult
 ValidatedResult<T> try_<T>(T Function () tryBlock, {String? errorMessage, int? internalErrorCode}) {
   try
   {
@@ -31,6 +32,7 @@ ValidatedResult<T> try_<T>(T Function () tryBlock, {String? errorMessage, int? i
   }
 }
 
+/// Same as [try_], used when [tryBlock] function returns a Future.
 Future<ValidatedResult<T>> tryFuture<T>(Future<T> Function () tryBlock, {String? errorMessage, int? internalErrorCode}) {
   try
   {
@@ -44,6 +46,7 @@ Future<ValidatedResult<T>> tryFuture<T>(Future<T> Function () tryBlock, {String?
 
 
 extension TryCatchExtFunction<T> on T Function() {
+  /// Execute function on which this extension method is called and lift the result in a ValidatedResult
   ValidatedResult<T> try_({String? errorMessage, int? internalErrorCode}) {
     try
     {
@@ -57,6 +60,7 @@ extension TryCatchExtFunction<T> on T Function() {
 }
 
 extension TryCatchExtFutureFunction<T> on Future<T> Function() {
+  /// Execute function on which this extension method is called and lift the result in a ValidatedResult
   Future<ValidatedResult<T>> try_({String? errorMessage, int? internalErrorCode}) =>
       tryFuture(this, errorMessage: errorMessage, internalErrorCode: internalErrorCode);
 }
