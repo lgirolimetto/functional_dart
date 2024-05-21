@@ -44,14 +44,14 @@ class Either<L, R> {
   Either<L, RR> bind<RR>(Either<L, RR> Function(R r) f) =>
       fold((l) => Left(l), (right) => f(right));
 
-  /// Extract all left results
+  /// Extract left result as an Iterable of 0|1 elements
   Iterable<L> asLeft() sync* {
     if (isLeft) {
       yield _l!;
     }
   }
 
-  /// Extract all right results
+  /// Extract right result as an Iterable of 0|1 elements
   Iterable<R> asRight() sync* {
     if (isRight) {
       yield _r!;
