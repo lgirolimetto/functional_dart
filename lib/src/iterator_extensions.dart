@@ -30,9 +30,8 @@ extension FlatOptionIterable<T> on Iterable<Option<T>> {
   }
 }
 
-extension FlatvalidationIterable<T> on Iterable<Validation<T>> {
-  Iterable<T> flatten() => flatMap((v) => v.asIterable());
-  Either<Iterable<Fail>, Iterable<T>> foldEither() {
+extension FlatvalidationIterable<T> on Iterable<ValidatedResult<T>> {
+  Either<Iterable<Failure>, Iterable<T>> foldEither() {
     final iterable = where((o) => !o.isValid);
     if(iterable.isEmpty) {
       return Right(flatten());
@@ -42,7 +41,7 @@ extension FlatvalidationIterable<T> on Iterable<Validation<T>> {
     }
   }
 
-  TR fold<TR>(TR Function(Iterable<Fail> failures) invalid,
+  TR fold<TR>(TR Function(Iterable<Failure> failures) invalid,
               TR Function(Iterable<T> values) valid) {
     final iterable = where((o) => !o.isValid);
     if(iterable.isEmpty) {

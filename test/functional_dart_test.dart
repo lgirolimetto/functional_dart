@@ -1,4 +1,5 @@
 import 'package:basic_functional_dart/basic_functional_dart.dart';
+import 'package:basic_functional_dart/src/validated_result_version/generic_extensions.dart';
 import 'package:test/test.dart';
 
 class Animal {
@@ -104,11 +105,11 @@ void main() {
     });
 
     test('Concatenation test', () async {
-      Validation<double> getDouble() => Valid(2.0);
+      ValidatedResult<double> getDouble() => ValidResult(2.0);
       Future<int> getInt() => Future(() => 1);
 
-      Future<Validation<double>> getFutureDouble() => 2.0.toValidFuture();
-      Future<Validation<int>> getFutureInt() => 2.toValidFuture<int>();
+      Future<ValidatedResult<double>> getFutureDouble() => 2.0.toValidFuture();
+      Future<ValidatedResult<int>> getFutureInt() => 2.toValidFuture();
 
       getFutureDouble()
           .bindFuture((t) => getFutureInt())
@@ -119,9 +120,9 @@ void main() {
           .fold(
               (failures) => fail('Success expected'),
               (val) => expect(1, val));
-      getFutureDouble().tryCatch();
+      getFutureDouble.try_();
 
-      getInt().tryCatch();
+      getInt.try_();
       int i = 0;
     });
 
@@ -129,10 +130,10 @@ void main() {
       Option<int> getOne (bool isSome) => isSome ? Some(1) : None();
       Option<int> getTwo (bool isSome) => isSome ? Some(2) : None();
 
-      Future<Validation<String>> getValidation(bool isInerror) => isInerror ? Invalid<String>(Exception('Failed').toFail()).toFuture()
-                                                                            : Valid('Stringa valida').toFuture();
+      Future<ValidatedResult<String>> getValidatedResult(bool isInerror) => isInerror ? InvalidResult<String>(Exception('Failed').toFailure()).toFuture()
+                                                                            : ValidResult('Stringa valida').toFuture();
       final oi = getOne(true).toFutureOrElseDo(() => 
-                    getValidation(true).fold((failures) => None(), 
+                    getValidatedResult(true).fold((failures) => None(), 
                                               (val) => getTwo(true).orElseMap(() => 3)
                   ));
       final one = await oi;
@@ -140,24 +141,24 @@ void main() {
       print (one.orElse(0));
 
       final none = await getOne(false).toFutureOrElseDo(() => 
-                    getValidation(true).fold((failures) => None<int>(), 
+                    getValidatedResult(true).fold((failures) => None<int>(), 
                                               (val) => getTwo(true).orElseMap(() => 3)
                   ));
       expect(none.isSome, isFalse);
 
       final two = await getOne(false).toFutureOrElseDo(() => 
-                    getValidation(false).fold((failures) => None<int>(), 
+                    getValidatedResult(false).fold((failures) => None<int>(), 
                                               (val) => getTwo(true).orElseMap(() => 3)
                   ));
       expect(two.orElse(0), 2);
 
       final three = await getOne(false).toFutureOrElseDo(() => 
-                    getValidation(false).fold((failures) => None<int>(), 
+                    getValidatedResult(false).fold((failures) => None<int>(), 
                                               (val) => getTwo(false).orElseMap(() => 3)
                   ));
       expect(three.orElse(0), 3);
 
-      await AssertionError().toFail().toInvalid<int>().toFuture();
+      await AssertionError().toFailure().toInvalid<int>().toFuture();
     });
 
     test('Iterable tests', () async {

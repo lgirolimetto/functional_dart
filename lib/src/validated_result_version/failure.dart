@@ -51,17 +51,17 @@ class Failure {
 }
 
 extension ExceptionToFailureExtension on Exception {
-  Failure toFailure<T>({String message = '', int internalErrorCode = -1})
-        => Failure.withException(this, errorMessage: message, internalErrorCode: internalErrorCode);
+  Failure toFailure<T>({String? errorMessage, int? internalErrorCode})
+        => Failure.withException(this, errorMessage: errorMessage, internalErrorCode: internalErrorCode);
 
-  ValidatedResult<T> toInvalid<T>({String message = '', int internalErrorCode = -1})
-        => toFailure(message: message, internalErrorCode: internalErrorCode).toInvalid();
+  ValidatedResult<T> toInvalid<T>({String? errorMessage, int? internalErrorCode})
+        => toFailure(errorMessage: errorMessage, internalErrorCode: internalErrorCode).toInvalid();
 }
 
 extension ErrorToFailureExtension on Error {
-  Failure toFailure<T>({String message = '', int internalErrorCode = -1})
-        => Failure.withError(this, errorMessage: message, internalErrorCode: internalErrorCode);
+  Failure toFailure<T>({String? errorMessage, int? internalErrorCode})
+        => Failure.withError(this, errorMessage: errorMessage, internalErrorCode: internalErrorCode);
 
-  ValidatedResult<T> toInvalid<T>({String message = '', int internalErrorCode = -1})
-        => toFailure(message: message, internalErrorCode: internalErrorCode).toInvalid();
+  ValidatedResult<T> toInvalid<T>({String? errorMessage, int? internalErrorCode})
+        => toFailure(errorMessage: errorMessage, internalErrorCode: internalErrorCode).toInvalid();
 }

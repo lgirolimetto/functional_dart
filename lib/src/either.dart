@@ -58,3 +58,9 @@ class Either<L, R> {
     }
   }
 }
+
+
+extension EitherOnT<T> on T {
+  Either<T, R> toLeft<R>() => Left<T, R>(this);
+  Either<L, T> toRight<L>() => Right<L, T>(this);
+}

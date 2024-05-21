@@ -80,7 +80,7 @@ class ValidatedResult<T> {
 
   /// Use [orElseTryFuture] to try a fallback and the fallback returns a [Future]. Otherwise use [orElseTry]
   Future<ValidatedResult<T>> orElseTryFuture(Future<T> Function() f, {String? errorMessage, int? internalErrorCode}) =>
-      fold((invalid) => f.try_(errorMessage: errorMessage, internalErrorCode: internalErrorCode), (some) => this.toValidFuture_());
+      fold((invalid) => f.try_(errorMessage: errorMessage, internalErrorCode: internalErrorCode), (some) => this.toFuture());
 
   /// Use [orElseRetry] to retry a fallback when the previous result is a [Failure]
   Future<ValidatedResult<T>> orElseRetry(T Function() fallback, {RetryStrategy rs = const LinearRetry(), String? errorMessage, int? internalErrorCode}) =>
@@ -137,13 +137,16 @@ class ValidatedResult<T> {
     return bindFuture((val) => f.apply(val).retry(rs: rs, errorMessage: errorMessage, internalErrorCode: internalErrorCode));
   }
 
-  Future<ValidatedResult<T>> toFuture() => Future(() => this);
+  Future<ValidatedResult<T>> toFuture() => Future.value(this);
 
   Option<T> toOption() => isValid ? Some(_value!) : None<T>();
+
+  Either<L, T> toEither<L>(L val)
+    => fold((failure) => val.toLeft(), (val) => val.toRight());
 }
 
-extension FunctionalsValidationExt on Object {
-  Future<ValidatedResult<T>> toValidFuture_<T>() => ValidResult<T>(this as T).toFuture();
+extension FunctionalsValidationExt<T> on T {
+  Future<ValidatedResult<T>> toValidFuture() => ValidResult(this).toFuture();
 }
 
 extension FutureValidatedResult<T> on Future<ValidatedResult<T>> {

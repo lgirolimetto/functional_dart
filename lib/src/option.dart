@@ -55,14 +55,14 @@ class Option<T> {
   Option<T> orElseBind(Option<T> Function() f) =>
       fold(() => f(), (some) => this);
 
-  Validation<T> toValidation() => isSome ? Valid(_value!) : Invalid<T>(Fail.withError(Error()));
+  ValidatedResult<T> toValidation() => isSome ? ValidResult(_value!) : InvalidResult<T>(Failure.withError(Error()));
 
   Future<Option<T>> toFutureOrElse(Future<Option<T>> future) =>
       fold(() => future, (some) => toFuture());
   Future<Option<T>> toFutureOrElseDo(Future<Option<T>> Function() futureF) =>
       fold(() => futureF(), (some) => toFuture());
 
-  Future<Option<T>> toFuture() => Future(() => (this));
+  Future<Option<T>> toFuture() => Future.value(this);
 }
 
 extension FutureOption<T> on Future<Option<T>> {
@@ -118,7 +118,7 @@ class NoValue extends Option{
 }
 
 extension NoValueExtension on NoValue{
-  Validation<NoValue> toValid() => Valid(this);
+  ValidatedResult<NoValue> toValid() => ValidResult(this);
 }
 
 extension OptionExtension<T> on Option<T> {
