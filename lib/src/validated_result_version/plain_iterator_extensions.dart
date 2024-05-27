@@ -70,6 +70,15 @@ extension FutureList<T> on Future<List<T>> {
   }
 }
 
+extension ParallelValidatedFutures<T> on Iterable<Future<ValidatedResult<T>> Function()> {
+  /// Run functions and wait the results
+  Future<Iterable<ValidatedResult<T>>> waitAll() {
+    return Future.wait(
+        fold(<Future<ValidatedResult<T>>>[], (previousValue, function) => previousValue.toIList().add(function()))
+    );
+  }
+}
+
 extension ParallelFutures<T> on Iterable<Future<T> Function()> {
   /// Run functions in isolates and wait the results
   /// If functions cannot be run in an Isolate, use [waitAll] instead.
@@ -107,6 +116,12 @@ extension ParallelFutures<T> on Iterable<Future<T> Function()> {
     return Future.wait(
         fold(<Future<ValidatedResult<T>>>[], (previousValue, function) => previousValue.toIList().add(function.try_(errorMessage: errorMessage, internalErrorCode: internalErrorCode)))
     );
+  }
+}
+
+extension IsolateOnFunction<T> on T Function() {
+  Future<T> runInIsolate() {
+    return Isolate.run(this);
   }
 }
 

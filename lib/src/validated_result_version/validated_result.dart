@@ -89,11 +89,26 @@ class ValidatedResult<T> {
         (val) => this.toFuture()
       );
 
-  /// Use [orElseRetryFuture] to retry a fallback and the fallback returns a [Future]
-  Future<ValidatedResult<T>> orElseRetryFuture(Future<T> Function() fallback, {RetryStrategy rs = const LinearRetry(), String? errorMessage, int? internalErrorCode}) =>
+  /// Use [orElseBindRetry] to retry a validated fallback when the previous result is a [Failure]
+  Future<ValidatedResult<T>> orElseBindRetry(ValidatedResult<T> Function() fallback, {RetryStrategy rs = const LinearRetry(), String? errorMessage, int? internalErrorCode}) =>
       fold(
         (failure) => fallback.retry(rs: rs),
         (val) => this.toFuture()
+      );
+
+
+  /// Use [orElseBindRetryFuture] to retry a validated fallback and the fallback returns a [Future]
+  Future<ValidatedResult<T>> orElseBindRetryFuture(Future<ValidatedResult<T>> Function() fallback, {RetryStrategy rs = const LinearRetry(), String? errorMessage, int? internalErrorCode}) =>
+      fold(
+        (failure) => fallback.retry(rs: rs),
+        (val) => this.toFuture()
+      );
+
+  /// Use [orElseRetryFuture] to retry a fallback and the fallback returns a [Future]
+  Future<ValidatedResult<T>> orElseRetryFuture(Future<T> Function() fallback, {RetryStrategy rs = const LinearRetry(), String? errorMessage, int? internalErrorCode}) =>
+      fold(
+              (failure) => fallback.retry(rs: rs),
+              (val) => this.toFuture()
       );
 
   /// Use [map] to chain a function that do not return a Future and cannot fail
@@ -204,6 +219,14 @@ extension FutureValidatedResult<T> on Future<ValidatedResult<T>> {
   /// Use [orElseRetryFuture] to retry a fallback that returns a [Future] when the previous result is a [Failure]
   Future<ValidatedResult<T>> orElseRetryFuture(Future<T> Function() fallback, {RetryStrategy rs = const LinearRetry(), String? errorMessage, int? internalErrorCode}) =>
     then((value) => value.orElseRetryFuture(fallback, rs: rs, errorMessage: errorMessage, internalErrorCode: internalErrorCode));
+
+  /// Use [orElseBindRetry] to retry a validated fallback when the previous result is a [Failure]
+  Future<ValidatedResult<T>> orElseBindRetry(ValidatedResult<T> Function() fallback, {RetryStrategy rs = const LinearRetry(), String? errorMessage, int? internalErrorCode}) =>
+      then((value) => value.orElseBindRetry(fallback, rs: rs, errorMessage: errorMessage, internalErrorCode: internalErrorCode));
+
+  /// Use [orElseBindRetryFuture] to retry a validated fallback that returns a [Future] when the previous result is a [Failure]
+  Future<ValidatedResult<T>> orElseBindRetryFuture(Future<ValidatedResult<T>> Function() fallback, {RetryStrategy rs = const LinearRetry(), String? errorMessage, int? internalErrorCode}) =>
+      then((value) => value.orElseBindRetryFuture(fallback, rs: rs, errorMessage: errorMessage, internalErrorCode: internalErrorCode));
 
   /// Use [map] to chain a function that do not return a Future and cannot fail
   Future<ValidatedResult<R>> map<R>(R Function(T t) f) =>
