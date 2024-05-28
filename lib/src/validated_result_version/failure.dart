@@ -1,7 +1,7 @@
 import 'package:basic_functional_dart/basic_functional_dart.dart';
 
-/// Classe di errore usata nella `Validation` e può contenere un `Error` o un'`Exception`
-/// Molto simile come concetto a `Either`
+/// Classe di errore usata nella [ValidatedResult] e può contenere un [Error] o una [Exception]
+/// Molto simile come concetto a [Either]
 class Failure {
   final String errorMessage;
   final int internalErrorCode;

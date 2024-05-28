@@ -20,8 +20,8 @@ class Either<L, R> {
       : _r = right,
         _l = null;
 
-  /// Estrae il tipo contenuto da `Either` (L o R) e chiama la funzione corrispondente
-  /// che dovranno essere passate come closures
+  /// Estrae il tipo contenuto da `Either` (L o R) e chiama le funzioni corrispondenti
+  /// [leftF] o [rightF]
   TR fold<TR>(TR Function(L l) leftF, TR Function(R r) rightF) =>
     isLeft ? leftF(_l!) : rightF(_r!);
       

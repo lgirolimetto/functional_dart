@@ -27,7 +27,7 @@ class ValidatedResult<T> {
     return isValid ? valid(_value!) : invalid(_failure!);
   }
       
-  /// Extract valid result as an Iterable of one element
+  /// Convert [ValidatedResult] as an Iterable of one element if it contains valid data, 0 otherwise
   Iterable<T> asIterable() sync* {
     if (isValid) {
       yield _value!;
