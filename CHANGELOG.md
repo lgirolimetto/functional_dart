@@ -7,6 +7,10 @@
 - Added errorMessage and internalErrorCode optional parameters to trayCatch
 
 ## 1.2.1
-- Deprecated Validation. Use validatedResult instead  
+- Deprecated Validation. Use ValidatedResult instead  
 - Added parallelism to Iterable and ValidatedResult<Iterable>
-- Added try_ to validate a function that can throws Errors or Exceptions  
+- Added try_ to validate a function that can throws Errors or Exceptions
+- 
+## 1.3.0
+- Removed Validation and Fail. Use ValidatedResult and Failure instead
+- Added extensions to Either and T

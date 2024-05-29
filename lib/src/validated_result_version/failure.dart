@@ -21,7 +21,7 @@ class Failure {
         internalErrorCode = internalErrorCode ?? defaultInternalErrorCode,
         _failedWith = Right<Error, Exception>(exception);
 
-  /// Restituisce il messaggio dell'Error o dell'Exception
+  /// Restituisce il messaggio dell'[Error] o dell'[Exception]
   @override
   String toString () {
     var innerMessage = _failedWith.fold((l) => l.toString(), (r) => r.toString());
@@ -34,7 +34,7 @@ class Failure {
   }
       
 
-  /// Estrae il possibile Error o Exception.
+  /// Estrae il possibile [Error] o [Exception].
   R fold<R>(R Function(Error err) errF,
       R Function(Exception exc) excF) {
     return _failedWith.fold((error) => errF(error), (exc) => excF(exc));
