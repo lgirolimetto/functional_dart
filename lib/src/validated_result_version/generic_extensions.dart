@@ -21,20 +21,51 @@ extension Zips<A> on A {
     return b.then((b) => (a: this, b: b));
   }
 
+  Future<({A a, B b})> zipFutureFn<B>(Future<B> Function() b) {
+    return b().then((b) => (a: this, b: b));
+  }
+
   ({A a, B b}) zip<B>(B b) {
     return (a: this, b: b);
+  }
+
+  ({A a, B b}) zipFn<B>(B Function() b) {
+    return (a: this, b: b());
+  }
+}
+
+extension ZipsAB<A, B> on ({A a, B b}) {
+  Future<({A a, B b, C c})> zipFuture<C>(Future<C> c) {
+    return c.then((c) => (a: a, b: b, c: c));
+  }
+
+  Future<({A a, B b, C c})> zipFutureFn<C>(Future<C> Function() c) {
+    return c().then((c) => (a: a, b: b, c: c));
+  }
+
+  ({A a, B b, C c}) zip<C>(C c) {
+    return (a: a, b: b, c: c);
+  }
+
+  ({A a, B b, C c}) zipFn<C>(C Function() c) {
+    return (a: a, b: b, c: c());
   }
 }
 
 extension FutureZips<A> on Future<A> {
   Future<({A a, B b})> zip<B>(B b) {
-    return then((a) => (a: a, b: b));
+    return then((a) => a.zip(b));
+  }
+
+  Future<({A a, B b})> zipFn<B>(B Function() b) {
+    return then((a) => a.zipFn(b));
   }
 
   Future<({A a, B b})> zipFuture<B>(Future<B> b) {
-    return Future
-            .wait([this, b])
-            .then((fs) => (a: fs[0] as A, b: fs[1] as B));
-    return then((a) => b.then((b) => (a: a, b: b)));
+    return then((a) => a.zipFuture(b));
+  }
+
+  Future<({A a, B b})> zipFutureFn<B>(Future<B> Function() b) {
+    return then((a) => a.zipFutureFn(b));
   }
 }
