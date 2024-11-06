@@ -4,16 +4,16 @@ extension FutureOnT<T> on T {
   Future<T> toFuture() => Future.value(this);
   ValidatedResult<T> toValid() => ValidResult(this);
 
-  R map<R>(R toElement(T)) => toElement(this);
-  Future<R> mapFuture<R>(Future<R> toElement(T)) => toElement(this);
+  R map<R>(R toElement(T el)) => toElement(this);
+  Future<R> mapFuture<R>(Future<R> toElement(T el)) => toElement(this);
 }
 
 extension MapOnFutureT<T> on Future<T> {
   Future<T> toFuture() => Future.value(this);
   Future<ValidatedResult<T>> toValid() => then((value) => value.toValid());
 
-  Future<R> map<R>(R toElement(T)) => then((value) => toElement(value));
-  Future<R> mapFuture<R>(Future<R> toElement(T)) => then((value) => toElement(value));
+  Future<R> map<R>(R toElement(T el)) => then((value) => toElement(value));
+  Future<R> mapFuture<R>(Future<R> toElement(T el)) => then((value) => toElement(value));
 }
 
 extension Zips<A> on A {
