@@ -1,19 +1,19 @@
 import 'package:basic_functional_dart/basic_functional_dart.dart';
 
-ValidatedResult<T> _catchBlock<T>(Object err, {String? errorMessage, int? internalErrorCode}) {
+ValidatedResult<T> _catchBlock<T>(Object err, {StackTrace? stackTrace, String? errorMessage, int? internalErrorCode}) {
   if (err is Exception) {
     return Failure
-            .withException(err, errorMessage: errorMessage ?? defaultErrorMessage, internalErrorCode: internalErrorCode ?? defaultInternalErrorCode)
+            .withException(err, stackTrace: stackTrace, errorMessage: errorMessage ?? defaultErrorMessage, internalErrorCode: internalErrorCode ?? defaultInternalErrorCode)
             .toInvalid();
   } else if (err is Error) {
     return Failure
-            .withError(err, errorMessage: errorMessage ?? defaultErrorMessage, internalErrorCode: internalErrorCode ?? defaultInternalErrorCode)
+            .withError(err, stackTrace: stackTrace, errorMessage: errorMessage ?? defaultErrorMessage, internalErrorCode: internalErrorCode ?? defaultInternalErrorCode)
             .toInvalid();
   }
   else if(err is String)
   {
     return Failure
-            .withError(ArgumentError(err), errorMessage: errorMessage ?? defaultErrorMessage, internalErrorCode: internalErrorCode ?? defaultInternalErrorCode)
+            .withError(ArgumentError(err), stackTrace: stackTrace, errorMessage: errorMessage ?? defaultErrorMessage, internalErrorCode: internalErrorCode ?? defaultInternalErrorCode)
             .toInvalid();
   }
 
@@ -26,9 +26,9 @@ ValidatedResult<T> try_<T>(T Function () tryBlock, {String? errorMessage, int? i
   {
     return ValidResult<T>(tryBlock());
   }
-  catch(err)
+  catch(err, stackTrace)
   {
-    return _catchBlock<T>(err, errorMessage: errorMessage, internalErrorCode: internalErrorCode);
+    return _catchBlock<T>(err, stackTrace: stackTrace, errorMessage: errorMessage, internalErrorCode: internalErrorCode);
   }
 }
 
@@ -38,9 +38,9 @@ Future<ValidatedResult<T>> tryFuture<T>(Future<T> Function () tryBlock, {String?
   {
     return tryBlock().try_(errorMessage: errorMessage, internalErrorCode: internalErrorCode);
   }
-  catch(err)
+  catch(err, stackTrace)
   {
-    return _catchBlock<T>(err, errorMessage: errorMessage, internalErrorCode: internalErrorCode).toFuture();
+    return _catchBlock<T>(err, stackTrace: stackTrace, errorMessage: errorMessage, internalErrorCode: internalErrorCode).toFuture();
   }
 }
 
@@ -52,9 +52,9 @@ extension TryCatchExtFunction<T> on T Function() {
     {
       return ValidResult(this());
     }
-    catch(err)
+    catch(err, stackTrace)
     {
-      return _catchBlock(err, errorMessage: errorMessage, internalErrorCode: internalErrorCode);
+      return _catchBlock(err, stackTrace: stackTrace, errorMessage: errorMessage, internalErrorCode: internalErrorCode);
     }
   }
 }
@@ -67,7 +67,7 @@ extension TryCatchExtFutureFunction<T> on Future<T> Function() {
 
 extension TryCatchExt<T> on Future<T> {
   Future<ValidatedResult<T>> try_({String? errorMessage, int? internalErrorCode}) =>
-      then((value) => ValidResult<T>(value)).catchError((err) {
-        return _catchBlock<T>(err, errorMessage: errorMessage, internalErrorCode: internalErrorCode);
-      });
+      then((value) => ValidResult<T>(value))
+          .catchError((err) => _catchBlock<T>(err, errorMessage: errorMessage, internalErrorCode: internalErrorCode)
+      );
 }

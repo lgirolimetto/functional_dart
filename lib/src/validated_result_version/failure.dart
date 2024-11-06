@@ -5,19 +5,24 @@ import 'package:basic_functional_dart/basic_functional_dart.dart';
 class Failure {
   final String errorMessage;
   final int internalErrorCode;
+  final StackTrace stackTrace;
   final Either<Error, Exception> _failedWith;
   
   Failure.withError(Error error, {
+    StackTrace? stackTrace,
     String? errorMessage,
     int? internalErrorCode}
-  ) : errorMessage = errorMessage ?? defaultErrorMessage,
+  ) : stackTrace = stackTrace ?? StackTrace.current,
+      errorMessage = errorMessage ?? defaultErrorMessage,
       internalErrorCode = internalErrorCode ?? defaultInternalErrorCode,
       _failedWith = Left<Error, Exception>(error);
       
   Failure.withException(Exception exception, {
+    StackTrace? stackTrace,
     String? errorMessage,
     int? internalErrorCode
-  }) : errorMessage = errorMessage ?? defaultErrorMessage,
+  }) : stackTrace = stackTrace ?? StackTrace.current,
+        errorMessage = errorMessage ?? defaultErrorMessage,
         internalErrorCode = internalErrorCode ?? defaultInternalErrorCode,
         _failedWith = Right<Error, Exception>(exception);
 

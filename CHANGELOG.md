@@ -14,3 +14,7 @@
 ## 1.3.0
 - Removed Validation and Fail. Use ValidatedResult and Failure instead
 - Added extensions to Either and T
+
+## 1.3.1
+- Minor Generic fixes
+- Added stackTrace to Failure
